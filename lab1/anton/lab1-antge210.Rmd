@@ -3,7 +3,8 @@ title: "Lab1 - TDDE01"
 author: "Anton Gefvert"
 date: "11/18/2018"
 output:
-  pdf_document: default
+  pdf_document: 
+    fig_caption: yes
   html_document: default
 ---
 
@@ -215,7 +216,8 @@ $$L(\theta) \propto p(\theta | x) \propto p(x | \theta)p(\theta) \propto \theta 
 Gives us
 
 $$l(\theta) \propto ln \left[ \left( \prod\limits_{i=1}^n e^{-\theta x_i}\right) 10 e^{-10 \theta} \right]$$
-```{r priorf, ig.width=5, fig.height=4, fig.cap="\\label{fig:fig3} log likelyhood for task 4"}
+
+```{r priorf, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig3} log likelyhood for task 4"}
 calc_posterior = function(x_seq, theta){
   return(log(prod(theta * exp(-theta * x_seq)) * 10 * exp(-10 * theta)))
 }
@@ -243,10 +245,16 @@ The new loglikelihood based on a prior is maximized at $\theta = 1.79$ and gives
 If we look at the graph in Figure \ref{fig:fig3}, we see that the one using a prior has a smaller peak, this shows it has a higher certainty (given the conditions) of what $\theta$ is.
 
 ## Task 5
-```{r hist, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig4} Distribution histograms"}
 
+```{r hists, fig.width=3, fig.height=3, fig.cap="\\label{fig:fig4} log likelyhood for task 4"}
   random_x = rexp(50, maxtheta)
-  data2[,1]
-  hist(data2, probability=TRUE)
-  hist(random_x, probability=TRUE)
+  data_numeric = as.numeric(as.character(data2$Length))
+  hist(data_numeric, probability=TRUE,breaks=seq(0,5,0.5), ylim=c(0,1), xlab="Length", main="Original data")
+  hist(random_x, probability=TRUE,breaks=seq(0,5,0.5), ylim=c(0,1), xlab="Length", main="Generated data")
 ```
+
+As seen in the above figures(couldn't for the life of me get captions to work with two histograms), we see that the distributions are very similiar.
+
+They are not identical, the value of the original data seems to have more datapoints closer to zero, but we clearly see both have higher values for lower lengths, and then it decreases following approximately a exponential curve.
+
+# Assignment 4
