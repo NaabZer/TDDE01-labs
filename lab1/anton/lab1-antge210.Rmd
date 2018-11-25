@@ -1,0 +1,252 @@
+---
+title: "Lab1 - TDDE01"
+author: "Anton Gefvert"
+date: "11/18/2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+library(readxl)
+library(kknn)
+library(knitr)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Assignment 1
+
+```{r data1}
+data1 <- read_excel("spambase.xlsx")
+
+n=dim(data1)[1]
+set.seed(12345)
+id=sample(1:n, floor(n*0.5))
+train1 = data1[id,]
+test1 = data1[-id,]
+```
+
+## Task 2 - p(Y = 1|X) > 0.5
+```{r glm1}
+trained = glm(Spam ~ ., data = train1)
+pred_train = predict(trained, newdata = train1)
+pred_test = predict(trained, newdata = test1)
+```
+
+#### Confusion matrix for training set:
+```{r glm1_tr}
+y_hat_tr1 = pred_train > 0.5
+kable(table(y_hat_tr1, t(train1[,49])),
+      caption = "Confusion matrix for training set using threshold 0.5")
+```
+
+#### Confusion matrix for test set:
+```{r glm1_te}
+y_hat_te1 = pred_test > 0.5
+kable(table(y_hat_te1, t(test1[,49])),
+      caption = "Confusion matrix for test set using threshold 0.5")
+#kable(table(y_hat_te1, t(test1[,49])),
+#      caption = "Confusion matrix for test set using threshold 0.5")
+```
+
+As we can see in Table 1 and Table 2, the results using the formula 
+$$\hat{Y} = \textrm{if }p(Y = 1|X) > 0.5\textrm{, otherwise }\hat{Y} = 0$$
+gives the following statisticts:
+
+* Train 
+  * 32 false positives
+  * 294 false negatives
+  * total we have 326 out of 1370 wrongful classification
+  * missclassification: $326/1370 = 0.238 = 23.8\%$
+  
+* Test 
+  * 50 false positives
+  * 343 false negatives
+  * total we have 393 out of 1370 wrongful classification
+  * missclassification: $393/1370 = 0.287 = 28.7\%$
+  
+\newpage
+## Task 3 - p(Y = 1|X) > 0.9
+
+#### Confusion matrix for training set:
+```{r glm2_tr}
+y_hat_tr2 = pred_train > 0.9
+kable(table(y_hat_tr2, t(train1[,49])),
+      caption = "Confusion matrix for train set using threshold 0.9")
+```
+  
+#### Confusion matrix for test set:
+```{r glm2_te}
+y_hat_te2 = pred_test > 0.9
+kable(table(y_hat_te2, t(test1[,49])),
+      caption = "Confusion matrix for test set using threshold 0.9")
+```
+
+What we see from Table 3 and Table 4, is that when we increase the constraint for marking an email as spam, we get way less false positives (1 instead of 50 in test set), but the false negatives are increased. 
+
+Missclassifications:
+* Train: $424/1370 = 0.309 = 30.9\%$
+* Test: $434/1370 = 0.317 = 31.7\%$
+  
+As we can see, the missclassification is increased, but you could argue that in this case, marking a non-spam email as spam, is way worse than letting through spam. It's easier for the recipient to filter away less spam, than to check through the spam mail to fins non-spam emails among them. In this case though, there are barely any true positives, so this "spam-filter" will pretty much do nothing.
+
+## Task 4 - knn, k = 30
+#### Confusion matrix for train set
+```{r kknn30_tr}
+res = kknn(Spam ~ ., train1, train1, k = 30)
+y_hat_tr3 = res[["fitted.values"]] > 0.5
+kable(table(y_hat_tr3, t(train1[,49])),
+      caption = "Confusion matrix for train set using knn with k = 30")
+```
+
+#### Confusion matrix for test set
+```{r kknn30_te}
+res = kknn(Spam ~ ., train1, test1, k = 30)
+y_hat_te3 = res[["fitted.values"]] > 0.5
+kable(table(y_hat_te3, t(test1[,49])),
+      caption = "Confusion matrix for test set using knn with k = 30")
+```
+
+As we can see from Table 5 and Table 6 we get the following missclassification rates:
+* Train: $236/1370 = 0.172 = 17.2\%$
+* Test: $452/1370 = 0.329 = 32.9\%$
+
+What we see here is that missclassification rate for train set is way lower than in exercise 2, which is reasonable since those will be the nodes that can be neighbors. We see that the missclassification rate for the test set has gone up compared to exercise 2. In both cases, the false positive rate has gone up, which is problematic for this spam classification.
+
+## Task 5 - knn, k = 1
+#### Confusion matrix for train set
+```{r kknn1_tr}
+res = kknn(Spam ~ ., train1, train1, k = 1)
+y_hat_tr3 = res[["fitted.values"]] > 0.5
+kable(table(y_hat_tr3, t(train1[,49])),
+      caption = "Confusion matrix for train set using knn with k = 1")
+```
+
+#### Confusion matrix for test set
+```{r kknn1_te}
+res = kknn(Spam ~ ., train1, test1, k = 1)
+y_hat_te3 = res[["fitted.values"]] > 0.5
+kable(table(y_hat_te3, t(test1[,49])),
+      caption = "Confusion matrix for test set using knn with k = 1")
+```
+
+
+As we can see from Table 7 and Table 8 we get the following missclassification rates:
+* Train: $0/1370 = 0\%$
+* Test: $474/1370 = 0.346 = 34.6\%$
+
+As can be seen in Table 7, using k = 1, makes this model perfect. This is simply because we are using the model to classify the same dataset that is datapoints, meaning the closest neighbor will be the node itself and since there is only one neighbor, we will perfectly match each node.
+
+The test set gets slightly worse than in exercise 4.
+
+\pagebreak
+
+# Assignment 2
+```{r data2}
+data2 <- read_excel("machines.xlsx")
+
+```
+
+## Task 2
+The distribution type of $p(x|\theta)$ is a exponential distribution, a distribution that models the time between events in a poisson distribution.
+
+```{r ll1}
+lpx = function(x_seq, theta){
+  return(log(prod(theta * exp(-theta * x_seq))))
+}
+
+ll1 = function(x_seq, theta_seq){
+  return(sapply(theta_seq, function(t) lpx(x_seq, t)))
+}
+```
+
+```{r plot_full_ll1, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig1} log likelyhood for task 2"}
+thetas = seq(0, 8, 0.01)
+logs1 = ll1(data2, thetas)
+
+plot(thetas, logs1, type="n", xlab = "theta", ylab = "loglik")
+lines(thetas, logs1, col="blue")
+legend(5, -50, legend=c("All datapoints"),
+       col=c("blue"), lty=1:2, cex=0.8)
+
+maxindex = match(max(logs1), logs1)
+maxlog = logs1[maxindex]
+maxtheta = thetas[maxindex]
+points(maxtheta, maxlog)
+```
+
+As seen in Figure \ref{fig:fig1}, the maximum loglikelyhood is given for $\theta = 1.13$ and gives the value $loglik \approx -42.3$
+
+## Task 3
+
+```{r plot_full_ll2,  fig.width=5, fig.height=4, fig.cap="\\label{fig:fig2} log likelyhood for task 3"}
+thetas = seq(0, 8, 0.01)
+logs1 = ll1(data2, thetas)
+  
+
+logs2 = ll1(data2[0:6,], thetas)
+y = c(-100, 0)
+plot(thetas, logs2, type="n", xlab = "theta", ylab = "loglik", ylim=y)
+lines(thetas, logs1, col="blue")
+lines(thetas, logs2, col="red")
+
+legend(5, -50, legend=c("All datapoints", "6 first points"),
+       col=c("blue", "red"), lty=1, cex=0.8)
+
+maxindex = match(max(logs1), logs1)
+maxlog = logs1[maxindex]
+maxtheta = thetas[maxindex]
+points(maxtheta, maxlog)
+
+maxindex = match(max(logs2), logs2)
+maxlog = logs2[maxindex]
+maxtheta = thetas[maxindex]
+points(maxtheta, maxlog)
+```
+
+As seen in Figure \ref{fig:fig2}, the maximum log likelyhood with just the first six variables from $x$ (red line), is given for $\theta = 1.79$ and gives the value $loglik \approx -2.52$.
+
+What we can see from these figures is that the loglikelyhood has a way pointier graf in the case where all values of $x$ is used, meaning it's more reliable (which is reasonable, since we have more datapoints). Whereas in the case with only the first sic values of $x$, the graph is much more flat top and with more values close to the maximum loglikelyhood.
+
+\pagebreak
+## Task 4
+$$L(\theta) \propto p(\theta | x) \propto p(x | \theta)p(\theta) \propto \theta \left( \prod\limits_{i=1}^n e^{-\theta x_i}\right) 10 e^{-10 \theta}$$
+
+Gives us
+
+$$l(\theta) \propto ln \left[ \left( \prod\limits_{i=1}^n e^{-\theta x_i}\right) 10 e^{-10 \theta} \right]$$
+```{r priorf, ig.width=5, fig.height=4, fig.cap="\\label{fig:fig3} log likelyhood for task 4"}
+calc_posterior = function(x_seq, theta){
+  return(log(prod(theta * exp(-theta * x_seq)) * 10 * exp(-10 * theta)))
+}
+
+posteriors = sapply(thetas, function(t) calc_posterior(data2, t))
+
+plot(thetas, logs1, type="n", xlab = "theta", ylab = "loglik")
+lines(thetas, logs1, col="blue")
+lines(thetas, posteriors, col="red")
+legend(5, -50, legend=c("without prior", "with prior"),
+       col=c("red", "blue"), lty=1, cex=0.8)
+
+maxindex = match(max(logs1), logs1)
+maxlog = logs1[maxindex]
+maxtheta = thetas[maxindex]
+points(maxtheta, maxlog)
+
+maxindex = match(max(posteriors), posteriors)
+maxlog = posteriors[maxindex]
+maxtheta = thetas[maxindex]
+points(maxtheta, maxlog)
+```
+
+The new loglikelihood based on a prior is maximized at $\theta = 1.79$ and gives $loglik \approx -2.51$, if we compare this to the result given when not using a prior, we get about the same loglikelihood and a similar $\theta$, albeit a bit smaller.
+If we look at the graph in Figure \ref{fig:fig3}, we see that the one using a prior has a smaller peak, this shows it has a higher certainty (given the conditions) of what $\theta$ is.
+
+## Task 5
+```{r hist, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig4} Distribution histograms"}
+
+  random_x = rexp(50, maxtheta)
+  data2[,1]
+  hist(data2, probability=TRUE)
+  hist(random_x, probability=TRUE)
+```
