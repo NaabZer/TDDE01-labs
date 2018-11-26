@@ -12,6 +12,8 @@ output:
 library(readxl)
 library(kknn)
 library(knitr)
+library(MASS)
+library(glmnet)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
@@ -25,13 +27,14 @@ set.seed(12345)
 id=sample(1:n, floor(n*0.5))
 train1 = data1[id,]
 test1 = data1[-id,]
+
 ```
 
 ## Task 2 - p(Y = 1|X) > 0.5
 ```{r glm1}
-trained = glm(Spam ~ ., data = train1)
-pred_train = predict(trained, newdata = train1)
-pred_test = predict(trained, newdata = test1)
+trained = glm(Spam ~ ., data = train1, family=binomial())
+pred_train = predict(trained,  newdata = train1, type="response")
+pred_test = predict(trained,  newdata = test1, type="response")
 ```
 
 #### Confusion matrix for training set:
@@ -46,8 +49,6 @@ kable(table(y_hat_tr1, t(train1[,49])),
 y_hat_te1 = pred_test > 0.5
 kable(table(y_hat_te1, t(test1[,49])),
       caption = "Confusion matrix for test set using threshold 0.5")
-#kable(table(y_hat_te1, t(test1[,49])),
-#      caption = "Confusion matrix for test set using threshold 0.5")
 ```
 
 As we can see in Table 1 and Table 2, the results using the formula 
@@ -55,16 +56,16 @@ $$\hat{Y} = \textrm{if }p(Y = 1|X) > 0.5\textrm{, otherwise }\hat{Y} = 0$$
 gives the following statisticts:
 
 * Train 
-  * 32 false positives
-  * 294 false negatives
-  * total we have 326 out of 1370 wrongful classification
-  * missclassification: $326/1370 = 0.238 = 23.8\%$
+  * 142 false positives
+  * 81 false negatives
+  * total we have 223 out of 1370 wrongful classification
+  * missclassification: $223/1370 = 0.163 = 16.3\%$
   
 * Test 
-  * 50 false positives
-  * 343 false negatives
-  * total we have 393 out of 1370 wrongful classification
-  * missclassification: $393/1370 = 0.287 = 28.7\%$
+  * 146 false positives
+  * 97 false negatives
+  * total we have 243 out of 1370 wrongful classification
+  * missclassification: $243/1370 = 0.177 = 17.7\%$
   
 \newpage
 ## Task 3 - p(Y = 1|X) > 0.9
@@ -86,8 +87,8 @@ kable(table(y_hat_te2, t(test1[,49])),
 What we see from Table 3 and Table 4, is that when we increase the constraint for marking an email as spam, we get way less false positives (1 instead of 50 in test set), but the false negatives are increased. 
 
 Missclassifications:
-* Train: $424/1370 = 0.309 = 30.9\%$
-* Test: $434/1370 = 0.317 = 31.7\%$
+* Train: $420/1370 = 0.306 = 30.6\%$
+* Test: $434/1370 = 0.312 = 31.2\%$
   
 As we can see, the missclassification is increased, but you could argue that in this case, marking a non-spam email as spam, is way worse than letting through spam. It's easier for the recipient to filter away less spam, than to check through the spam mail to fins non-spam emails among them. In this case though, there are barely any true positives, so this "spam-filter" will pretty much do nothing.
 
@@ -109,6 +110,7 @@ kable(table(y_hat_te3, t(test1[,49])),
 ```
 
 As we can see from Table 5 and Table 6 we get the following missclassification rates:
+
 * Train: $236/1370 = 0.172 = 17.2\%$
 * Test: $452/1370 = 0.329 = 32.9\%$
 
@@ -143,9 +145,9 @@ The test set gets slightly worse than in exercise 4.
 \pagebreak
 
 # Assignment 2
+
 ```{r data2}
 data2 <- read_excel("machines.xlsx")
-
 ```
 
 ## Task 2
@@ -258,3 +260,84 @@ As seen in the above figures(couldn't for the life of me get captions to work wi
 They are not identical, the value of the original data seems to have more datapoints closer to zero, but we clearly see both have higher values for lower lengths, and then it decreases following approximately a exponential curve.
 
 # Assignment 4
+
+## 1
+```{r data3}
+data3 <- read_excel("tecator.xlsx")
+```
+
+```{r propteinplot, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig5} Moisture vs protein"}
+
+plot(data3$Protein, data3$Moisture, type="n", xlab="Protein", ylab="Moisture")
+points(data3$Protein, data3$Moisture)
+```
+
+Looking at Figure \ref{fig:fig5}, most of the datapoints are located in a basically linear line,
+which implies the model is described well by a linear model.
+
+## 2
+
+A model that describes $M_i$ can be written as
+$$y tilde N \left( \sum \limits_{n=1}^{i} x^i, \sigma^2 \right)$$
+where $x$ is the Protein data.
+
+MSE is appropriate because MSE gives exponentially higher error the bigger the error,
+this means an overfitted model which work bad on validation data will give a larger error,
+a decently fitted model will give a smaller error.
+
+\pagebreak
+## 3
+```{r div_data3}
+n=dim(data3)[1]
+set.seed(12345)
+id=sample(1:n, floor(n*0.5))
+train3 = data3[id,]
+test3 = data3[-id,]
+```
+
+```{r fit_data3_lin, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig6} MSE for diffrent $i$ in $M_i$"}
+mses = data.frame(Train_MSE=double(),
+                  Test_MSE=double(),
+                  stringsAsFactors=FALSE)
+for(i in seq(1,6)){
+    trained = lm(Moisture ~ poly(Protein, i), data=train3)
+    mses[i,"Train_MSE"] = mean((train3$Moisture - predict(trained))^2)
+    mses[i,"Test_MSE"] = mean((test3$Moisture - predict(trained, newdata=test3))^2)
+}
+plot(seq(1,6), mses$Test_MSE, type="n", ylim=c(30,35), ylab="MSE", xlab="i")
+lines(seq(1,6), mses$Train_MSE, col="blue")
+lines(seq(1,6), mses$Test_MSE, col="red")
+legend(4.5, 33, legend=c("Train data", "Test data"),
+       col=c("blue", "red"), lty=1, cex=0.8)
+```
+
+As seen if Figure \ref{fig:fig5} we see that model $i=1$ has lowest MSE for the test data, and should thus be selected.
+
+We can see that after $i=2$ the MSE for test data becomes higher while train data gets lower, this is probably due to the more advanced models overfitting the training data (As we can see in Figure \ref{fig:fig4}, the solution looks very linear)
+
+## 4
+```{r stepAIC, include=FALSE}
+data3[,1:102]
+trained = glm(Fat~., data=data3[,1:102])
+stepped = stepAIC(trained)
+num_params = length(stepped$model)
+```
+
+The amount of variables selected is $64$
+
+## 5
+
+```{r ridge,  fig.width=5, fig.height=4, fig.cap="\\label{fig:fig7} ridge coefficients over lambda"}
+covariates = scale(stepped$model[,2:64])
+response = scale(stepped$model$Fat)
+ridge = glmnet(as.matrix(covariates), response, alpha=0, family="gaussian")
+plot(ridge, xvar="lambda")
+```
+
+As seen in Figure \ref{fig:fig7}, we see that when lambda gets larger, the coeffiecents converge towards zero.
+
+## 6
+```{r lasso,  fig.width=5, fig.height=4, fig.cap="\\label{fig:fig8} lasso coefficients over lambda"}
+lasso = glmnet(as.matrix(covariates), response, alpha=1, family="gaussian")
+plot(lasso, xvar="lambda")
+```
