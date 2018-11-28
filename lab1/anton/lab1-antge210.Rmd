@@ -9,6 +9,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
+#Setup
 library(readxl)
 library(kknn)
 library(knitr)
@@ -20,6 +21,8 @@ knitr::opts_chunk$set(echo = FALSE)
 # Assignment 1
 
 ```{r data1}
+
+#1.1
 data1 <- read_excel("spambase.xlsx")
 
 n=dim(data1)[1]
@@ -32,6 +35,7 @@ test1 = data1[-id,]
 
 ## Task 2 - p(Y = 1|X) > 0.5
 ```{r glm1}
+#1.2
 trained = glm(Spam ~ ., data = train1, family=binomial())
 pred_train = predict(trained,  newdata = train1, type="response")
 pred_test = predict(trained,  newdata = test1, type="response")
@@ -39,6 +43,7 @@ pred_test = predict(trained,  newdata = test1, type="response")
 
 #### Confusion matrix for training set:
 ```{r glm1_tr}
+#Confusion matrix training
 y_hat_tr1 = pred_train > 0.5
 kable(table(y_hat_tr1, t(train1[,49])),
       caption = "Confusion matrix for training set using threshold 0.5")
@@ -46,6 +51,8 @@ kable(table(y_hat_tr1, t(train1[,49])),
 
 #### Confusion matrix for test set:
 ```{r glm1_te}
+
+#Confusion matrix test
 y_hat_te1 = pred_test > 0.5
 kable(table(y_hat_te1, t(test1[,49])),
       caption = "Confusion matrix for test set using threshold 0.5")
@@ -72,6 +79,7 @@ gives the following statisticts:
 
 #### Confusion matrix for training set:
 ```{r glm2_tr}
+#1.3 training
 y_hat_tr2 = pred_train > 0.9
 kable(table(y_hat_tr2, t(train1[,49])),
       caption = "Confusion matrix for train set using threshold 0.9")
@@ -79,6 +87,8 @@ kable(table(y_hat_tr2, t(train1[,49])),
   
 #### Confusion matrix for test set:
 ```{r glm2_te}
+
+#test
 y_hat_te2 = pred_test > 0.9
 kable(table(y_hat_te2, t(test1[,49])),
       caption = "Confusion matrix for test set using threshold 0.9")
@@ -95,6 +105,8 @@ As we can see, the missclassification is increased, but you could argue that in 
 ## Task 4 - knn, k = 30
 #### Confusion matrix for train set
 ```{r kknn30_tr}
+
+#1.4 train
 res = kknn(Spam ~ ., train1, train1, k = 30)
 y_hat_tr3 = res[["fitted.values"]] > 0.5
 kable(table(y_hat_tr3, t(train1[,49])),
@@ -103,6 +115,8 @@ kable(table(y_hat_tr3, t(train1[,49])),
 
 #### Confusion matrix for test set
 ```{r kknn30_te}
+
+#test
 res = kknn(Spam ~ ., train1, test1, k = 30)
 y_hat_te3 = res[["fitted.values"]] > 0.5
 kable(table(y_hat_te3, t(test1[,49])),
@@ -119,6 +133,8 @@ What we see here is that missclassification rate for train set is way lower than
 ## Task 5 - knn, k = 1
 #### Confusion matrix for train set
 ```{r kknn1_tr}
+
+#1.5 train
 res = kknn(Spam ~ ., train1, train1, k = 1)
 y_hat_tr3 = res[["fitted.values"]] > 0.5
 kable(table(y_hat_tr3, t(train1[,49])),
@@ -127,6 +143,8 @@ kable(table(y_hat_tr3, t(train1[,49])),
 
 #### Confusion matrix for test set
 ```{r kknn1_te}
+
+#test
 res = kknn(Spam ~ ., train1, test1, k = 1)
 y_hat_te3 = res[["fitted.values"]] > 0.5
 kable(table(y_hat_te3, t(test1[,49])),
@@ -147,6 +165,7 @@ The test set gets slightly worse than in exercise 4.
 # Assignment 2
 
 ```{r data2}
+#2.1
 data2 <- read_excel("machines.xlsx")
 ```
 
@@ -154,6 +173,7 @@ data2 <- read_excel("machines.xlsx")
 The distribution type of $p(x|\theta)$ is a exponential distribution, a distribution that models the time between events in a poisson distribution.
 
 ```{r ll1}
+#2.2
 lpx = function(x_seq, theta){
   return(log(prod(theta * exp(-theta * x_seq))))
 }
@@ -161,6 +181,7 @@ lpx = function(x_seq, theta){
 ll1 = function(x_seq, theta_seq){
   return(sapply(theta_seq, function(t) lpx(x_seq, t)))
 }
+
 ```
 
 ```{r plot_full_ll1, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig1} log likelyhood for task 2"}
@@ -183,6 +204,8 @@ As seen in Figure \ref{fig:fig1}, the maximum loglikelyhood is given for $\theta
 ## Task 3
 
 ```{r plot_full_ll2,  fig.width=5, fig.height=4, fig.cap="\\label{fig:fig2} log likelyhood for task 3"}
+
+#2.3
 thetas = seq(0, 8, 0.01)
 logs1 = ll1(data2, thetas)
   
@@ -220,6 +243,8 @@ Gives us
 $$l(\theta) \propto ln \left[ \left( \prod\limits_{i=1}^n e^{-\theta x_i}\right) 10 e^{-10 \theta} \right]$$
 
 ```{r priorf, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig3} log likelyhood for task 4"}
+
+#3.4
 calc_posterior = function(x_seq, theta){
   return(log(prod(theta * exp(-theta * x_seq)) * 10 * exp(-10 * theta)))
 }
@@ -249,10 +274,14 @@ If we look at the graph in Figure \ref{fig:fig3}, we see that the one using a pr
 ## Task 5
 
 ```{r hists, fig.width=3, fig.height=3, fig.cap="\\label{fig:fig4} log likelyhood for task 4"}
-  random_x = rexp(50, maxtheta)
-  data_numeric = as.numeric(as.character(data2$Length))
-  hist(data_numeric, probability=TRUE,breaks=seq(0,5,0.5), ylim=c(0,1), xlab="Length", main="Original data")
-  hist(random_x, probability=TRUE,breaks=seq(0,5,0.5), ylim=c(0,1), xlab="Length", main="Generated data")
+
+#3.5
+random_x = rexp(50, maxtheta)
+data_numeric = as.numeric(as.character(data2$Length))
+hist(data_numeric, probability=TRUE,breaks=seq(0,5,0.5),
+     ylim=c(0,1), xlab="Length", main="Original data")
+hist(random_x, probability=TRUE,breaks=seq(0,5,0.5),
+     ylim=c(0,1), xlab="Length", main="Generated data")
 ```
 
 As seen in the above figures(couldn't for the life of me get captions to work with two histograms), we see that the distributions are very similiar.
@@ -263,6 +292,7 @@ They are not identical, the value of the original data seems to have more datapo
 
 ## 1
 ```{r data3}
+#4.1
 data3 <- read_excel("tecator.xlsx")
 ```
 
@@ -278,7 +308,7 @@ which implies the model is described well by a linear model.
 ## 2
 
 A model that describes $M_i$ can be written as
-$$y tilde N \left( \sum \limits_{n=1}^{i} x^i, \sigma^2 \right)$$
+$$y \sim N \left( \sum \limits_{n=1}^{i} x^i, \sigma^2 \right)$$
 where $x$ is the Protein data.
 
 MSE is appropriate because MSE gives exponentially higher error the bigger the error,
@@ -288,6 +318,8 @@ a decently fitted model will give a smaller error.
 \pagebreak
 ## 3
 ```{r div_data3}
+
+#4.3
 n=dim(data3)[1]
 set.seed(12345)
 id=sample(1:n, floor(n*0.5))
@@ -296,6 +328,7 @@ test3 = data3[-id,]
 ```
 
 ```{r fit_data3_lin, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig6} MSE for diffrent $i$ in $M_i$"}
+
 mses = data.frame(Train_MSE=double(),
                   Test_MSE=double(),
                   stringsAsFactors=FALSE)
@@ -317,6 +350,8 @@ We can see that after $i=2$ the MSE for test data becomes higher while train dat
 
 ## 4
 ```{r stepAIC, include=FALSE}
+
+#4.4
 data3[,1:102]
 trained = glm(Fat~., data=data3[,1:102])
 stepped = stepAIC(trained)
@@ -328,6 +363,8 @@ The amount of variables selected is $64$
 ## 5
 
 ```{r ridge,  fig.width=5, fig.height=4, fig.cap="\\label{fig:fig7} ridge coefficients over lambda"}
+
+#4.5
 covariates = scale(stepped$model[,2:64])
 response = scale(stepped$model$Fat)
 ridge = glmnet(as.matrix(covariates), response, alpha=0, family="gaussian")
@@ -338,6 +375,15 @@ As seen in Figure \ref{fig:fig7}, we see that when lambda gets larger, the coeff
 
 ## 6
 ```{r lasso,  fig.width=5, fig.height=4, fig.cap="\\label{fig:fig8} lasso coefficients over lambda"}
+
+#4.6
 lasso = glmnet(as.matrix(covariates), response, alpha=1, family="gaussian")
 plot(lasso, xvar="lambda")
+```
+
+As seen in Figure \ref{fig:fig8}, we see that in the lasso coeffient values varies a lot more, and all lambda values are negative.
+
+# Code appendix
+
+```{r ref.label=knitr::all_labels(), echo = T, eval = F}
 ```
