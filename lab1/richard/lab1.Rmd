@@ -1,0 +1,261 @@
+---
+title: "TDDE01 - lab1"
+author: "Richard Friberg"
+date: "11/15/2018"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assignment 1 - spam classification
+
+```{r, include=FALSE}
+# 1 import data
+library(readxl)
+data = read_excel("spambase.xlsx")
+
+n=dim(data)[1]
+set.seed(12345)
+id=sample(1:n, floor(n*0.5))
+train=data[id,]
+test=data[-id,]
+```
+
+## 2. 
+    Classification principle: 
+    1 if p(Y = 1|X) > 0.5 else 0
+#### For training data:
+```{r, warning=FALSE, echo=FALSE}
+model_train = glm(formula = Spam ~., family = binomial(link = "logit"), data = train)
+prediction_train = predict(model_train, type = "response")
+result_train_5 = ifelse(prediction_train > 0.5, 1, 0) # 1 om större än 0.5, 0 annars. (räknas som spam om 1?)
+with(train, table(result_train_5, Spam, dnn = c("Predicted", "Truth"))) # confusion matrix
+missclassification_rate_train_5 = mean(result_train_5 != train$Spam)
+sprintf("Missclassification rate: %f", missclassification_rate_train_5)
+```
+#### For test data:
+```{r, warning=FALSE, echo=FALSE}
+prediction_test = predict(model_train, test, type = "response")
+result_test_5 = ifelse(prediction_test > 0.5, 1, 0) # 1 om större än 0.5, 0 annars. (räknas som spam om 1?)
+with(test, table(result_test_5, Spam, dnn = c("Predicted", "Truth"))) # confusion matrix
+missclassification_rate_test_5 = mean(result_test_5 != test$Spam)
+sprintf("Missclassification rate: %f", missclassification_rate_test_5)
+```
+This is not at spam-filter I would like to use. A lot of emails that is not spam is predicted as spam and quite a high percentage of the emails that are spam gets through, which is not as bad but would be a bit irritating. 
+
+We can see that the classification rates are similar for both the training and test data. This implies that the regression model atleast made a good attempt at generalising its spam detection functionality and thus not overfitting the training data. 
+
+
+## 3.
+    Classification principle: 
+    1 if p(Y = 1|X) > 0.9 else 0
+#### For training data:
+```{r, warning=FALSE, echo=FALSE}
+result_train_9 = ifelse(prediction_train > 0.9, 1, 0) # 1 om större än 0.5, 0 annars. (räknas som spam om 1?)
+with(train, table(result_train_9, Spam, dnn = c("Predicted", "Truth"))) # confusion matrix
+missclassification_rate_train_9 = mean(result_train_9 != train$Spam)
+sprintf("Missclassification rate: %f", missclassification_rate_train_9)
+```
+#### For test data:
+```{r, warning=FALSE, echo=FALSE}
+result_test_9 = ifelse(prediction_test > 0.9, 1, 0) # 1 om större än 0.5, 0 annars. (räknas som spam om 1?)
+with(test, table(result_test_9, Spam, dnn = c("Predicted", "Truth"))) # confusion matrix
+missclassification_rate_test_9 = mean(result_test_9 != test$Spam)
+sprintf("Missclassification rate: %f", missclassification_rate_test_9)
+```
+The new stricter rule made it so that the filter behaves very cowardly, barely marking any of the emails as spam. Can't quite call it a spam filter if it doesn't filter out the spam.
+
+## 4. knn with k = 30
+#### For training data:
+```{r, echo=FALSE}
+kknn_model = kknn::kknn(formula = Spam ~., train = train, test = train, k = 30)
+result_train_5k = ifelse(kknn_model$fitted.values > 0.5, 1, 0)
+with(test, table(result_train_5k, train$Spam, dnn = c("Predicted", "Truth"))) # confusion matrix
+missclassification_rate_train_k30 = mean(result_train_5k != train$Spam)
+sprintf("Missclassification rate: %f", missclassification_rate_train_k30)
+```
+#### For test data:
+```{r, echo=FALSE}
+kknn_model = kknn::kknn(formula = Spam ~., train = train, test = test, k = 30)
+result_test_5k = ifelse(kknn_model$fitted.values > 0.5, 1, 0)
+with(test, table(result_test_5k, test$Spam, dnn = c("Predicted", "Truth"))) # confusion matrix
+missclassification_rate_test_k30 = mean(result_test_5k != test$Spam)
+sprintf("Missclassification rate: %f", missclassification_rate_test_k30)
+```
+In comparision to task 2 above, where we used linear regression, you can see that the missclassifcation rates are about the same using only the training set. But when we switch over to comparing the validation using the training data, we can see that in task 2 the model was a much better attempt at generalising the spam filtering. This as the missclassification rate only rose about 1 % compared to doubling we saw here, from 17% to 33%. 
+
+## 5. knn with k = 1
+#### For training data:
+```{r, echo=FALSE}
+kknn_model_2 = kknn::kknn(formula = Spam ~ ., train = train, test = train, k = 1)
+result_test_5 = ifelse(kknn_model_2$fitted.values > 0.5, 1, 0)
+with(train, table(result_test_5, Spam, dnn = c("Predicted", "Truth"))) # confusion matrix
+missclassification_rate_test_5 = mean(result_test_5 != train$Spam)
+sprintf("Missclassification rate: %f", missclassification_rate_test_5)
+```
+#### For test data:
+```{r, echo=FALSE}
+set.seed(12345)
+kknn_model_2 = kknn::kknn(formula = Spam ~ ., train = train, test = test, k = 1)
+result_test_5 = ifelse(kknn_model_2$fitted.values > 0.5, 1, 0)
+with(train, table(result_test_5, test$Spam, dnn = c("Predicted", "Truth"))) # confusion matrix
+missclassification_rate_test_5 = mean(result_test_5 != test$Spam)
+sprintf("Missclassification rate: %f", missclassification_rate_test_5)
+```
+
+Using k=1 will result in the model overfitting the data, as it clearly does when "predicting" everything correctly using only the training data. The flaws of using k=1 only comes up when trying to validate the model using the test data, where the missclasification rate goes from zero to about 35% thus not producing a very good generalisation.
+
+# Assignment 2
+```{r, include=FALSE}
+# 1. import data
+library(readxl)
+data = read_excel("machines.xlsx")
+```
+## 2. compute log-likelihood and find max from plot
+```{r, warning=FALSE}
+plot(data) # a negative exponential distribution
+
+log_likelihood = function(theta, data) {
+  n = dim(data)[1]
+  return(n*log(theta)-theta*sum(data))
+}
+x = seq(-1, 4, 0.001)
+func_ll = log_likelihood(x, data=data)
+plot(x, func_ll, type='l')
+max_ll = max(func_ll, na.rm=T)
+index = which.max(func_ll)
+theta_estimation = x[index]
+sprintf("Maximum likelihood value of theta: %f", theta_estimation)
+
+
+## 3 compute log-likelihood using only 6 first observations
+
+func_ll_6 = log_likelihood(x, data=data[1:6,])
+plot(x, func_ll, col="green", type='l', ylim=c(-100,0))
+lines(x, func_ll_6, col="red")
+max_ll_6 = max(func_ll_6, na.rm=T)
+index_6 = which.max(func_ll_6)
+theta_estimation_6 = x[index_6]
+sprintf("Maximum likelihood value of theta: %f", theta_estimation_6)
+```
+Less data makes the estimations less reliably, so the first estimation is likely a better estimation for the theta value and thus the lifeline of the machines.
+
+## 4.
+```{r, warning=FALSE}
+posterior_ll = function(theta, data) {
+  n = dim(data)[1]
+  lambda = 10
+  ll = log_likelihood(x, data=data)
+  prior = log(lambda*exp(-lambda*theta))
+  return(ll+prior)
+}
+x = seq(-1, 4, 0.001)
+func_bayes = posterior_ll(x, data)
+plot(x, func_bayes, type='l', ylim = c(-100, -40))
+lines(x, log_likelihood(x, data), col="blue")
+max_func_bayes = max(func_bayes, na.rm=T)
+index_bayes = which.max(func_bayes)
+theta_estimation_bayes = x[index_bayes]
+sprintf("Maximum likelihood value of theta: %f", theta_estimation_bayes)
+```
+This is caused by a smaller range of likely values as the priori helps to narrow down the likely theta value. The more information available the likely better, and narrower, the approximation will be.
+
+## 5.
+```{r}
+set.seed(12345)
+samples_50 = rexp(50, theta_estimation)
+hist(samples_50, xlim=c(0,6), ylim = c(0, 30), breaks = 10)
+hist(c(data)$Length, xlim=c(0,6), ylim = c(0, 30), breaks = 10)
+```
+We see that both of the histograms project something that looks like a exponential distribution, and thus the data stems from something that follows a exponential distribution.
+
+
+# Assignment 4
+## 1. import data and plot moisture versus protein
+```{r}
+library(readxl)
+data = read_excel("tecator.xlsx")
+plot(data$Moisture, data$Protein)
+```
+## 2. Report model m
+```{r}
+# normal distribuited polynomal sum
+# Y ~ N(sum(k_i*x^i), my, sigma)
+```
+
+## 3. divide data and use model on i 1 to 6
+```{r, warning=FALSE}
+n=dim(data)[1]
+set.seed(12345)
+id=sample(1:n, floor(n*0.5))
+train=data[id,]
+test=data[-id,]
+
+dfr_train = data.frame(x = train$Moisture, y = train$Protein)
+dfr_test = data.frame(x = test$Moisture, y = test$Protein)
+dfr_train = dfr_train[with(dfr_train, order(x)),]
+dfr_test = dfr_test[with(dfr_test, order(x)),]
+
+#prediction = predict(model_func(sorted_dfr[,1], sorted_dfr[,2], 6))
+#plot(data$Moisture, data$Protein)
+#lines(sorted_dfr[,1], prediction, col='green', lwd=1, type='l')
+
+mse_train_vec = c()
+mse_test_vec = c()
+for (i in 1:6) {
+    model = lm(dfr_train[,2] ~ poly(dfr_train[,1], i))
+    prediction_train = predict(model, dfr_train)
+    prediction_test = predict(model, dfr_test)
+    mse_train = sum((dfr_train[,2]-prediction_train)^2)/length(prediction_train)
+    mse_test = sum((dfr_test[,2]-prediction_test)^2)/length(prediction_test)
+    mse_train_vec = c(mse_train_vec, mse_train)
+    mse_test_vec = c(mse_test_vec, mse_test)
+}
+plot(seq(1:6), mse_train_vec, ylim = c(3, 4.2), type = 'l')
+lines(seq(1:6), mse_test_vec, col='red')
+```
+
+## 4. stepAIC
+```{r, in}
+require(MASS)
+model = lm(data$Fat ~ . -Sample-Moisture-Protein, data)
+model_stepAIC = stepAIC(model)
+num_variables = length(model_stepAIC$model)-1 # -1 as fat is the respondent dependant on the other 63 variables
+# The remaining ones are the best predicators. Those that where left out where so because they didn't contribute so much to the model. 
+```
+
+## 5. fit ridge regression model
+```{r}
+library(glmnet)
+x = scale(data[,2:101])
+y = scale(data$Fat)
+net_ridge = glmnet(as.matrix(x), y, alpha=0)
+plot(net_ridge, xvar = "lambda", label = TRUE)
+```
+
+## 6. fit LASSO regression model
+```{r}
+library(glmnet)
+x = scale(data[,2:101])
+y = scale(data$Fat)
+net_lasso = glmnet(as.matrix(x), y, alpha=1)
+plot(net_lasso, xvar = "lambda", label = TRUE)
+```
+## compare plot 5 and 6: Lasso goes to 0 where as ridge only gets nearer to 0.
+
+## 7. use cross-validation to find optimal LASSO model
+```{r}
+library(glmnet)
+x = scale(data[,2:101])
+y = scale(data$Fat)
+cvnet_lasso = cv.glmnet(as.matrix(x), y, alpha=1, lambda=c(0, 10^(seq(-6,0.4,0.01))))
+plot(cvnet_lasso)
+good_enough_lambda = cvnet_lasso$lambda.1se
+```
+
+## 8. compare 4 and 7
+The variable selection was 63 for AIC, but only 18 when using cross validation for sort of "good enough" lambda value. The key is to pick the variables that contributes the most to the model whilst also not loosing to much information whilst doing so which can be hard to do.

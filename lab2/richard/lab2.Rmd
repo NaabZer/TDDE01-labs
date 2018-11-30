@@ -1,0 +1,19 @@
+---
+title: "lab2"
+author: "Richard Friberg"
+date: "11/28/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Lab2
+
+## Assignment - LDA and logistic regression
+
+```{r}
+data = read.csv("australian-crabs.csv")
+plot(data$CL, data$RW, col=ifelse(data$sex=="Female", "red", "blue"))
+```
