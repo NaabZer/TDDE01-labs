@@ -7,13 +7,15 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(glmnet)
+require(MASS)
 ```
 
 # Assignment 1 - spam classification
 
 ```{r, include=FALSE}
 # 1 import data
-library(readxl)
 data = read_excel("spambase.xlsx")
 
 n=dim(data)[1]
@@ -207,12 +209,12 @@ The distribution of the histograms looks very similar to each other, indicating 
 # Assignment 4
 
 ## 1
-```{r data3}
+```{r data3, include=FALSE}
 data3 <- read_excel("tecator.xlsx")
 data = read_excel("tecator.xlsx")
 ```
 
-```{r propteinplot, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig5} Moisture vs protein"}
+```{r propteinplot, echo=FALSE, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig5} Moisture vs protein"}
 plot(data3$Protein, data3$Moisture, type="n", xlab="Protein", ylab="Moisture")
 points(data3$Protein, data3$Moisture)
 ```
@@ -223,7 +225,7 @@ which implies the model is described well by a linear model.
 ## 2
 
 A model that describes $M_i$ can be written as
-$$y tilde N \left( \sum \limits_{n=1}^{i} x^i, \sigma^2 \right)$$
+$$y \sim N \left( \sum \limits_{n=1}^i \omega_i x^i, \sigma^2 \right)$$
 where $x$ is the Protein data.
 
 MSE is appropriate because MSE gives exponentially higher error the bigger the error,
@@ -231,8 +233,9 @@ this means an overfitted model which work bad on validation data will give a lar
 a decently fitted model will give a smaller error.
 
 \pagebreak
+
 ## 3
-```{r div_data3}
+```{r div_data3, include=FALSE}
 n=dim(data3)[1]
 set.seed(12345)
 id=sample(1:n, floor(n*0.5))
@@ -240,7 +243,7 @@ train3 = data3[id,]
 test3 = data3[-id,]
 ```
 
-```{r fit_data3_lin, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig6} MSE for diffrent $i$ in $M_i$"}
+```{r fit_data3_lin, echo=FALSE,fig.width=5, fig.height=4, fig.cap="\\label{fig:fig6} MSE for diffrent $i$ in $M_i$"}
 mses = data.frame(Train_MSE=double(),
                   Test_MSE=double(),
                   stringsAsFactors=FALSE)
@@ -262,7 +265,6 @@ We can see that after $i=2$ the MSE for test data becomes higher while train dat
 
 ## 4
 ```{r stepAIC, include=FALSE}
-require(MASS)
 data3[,1:102]
 trained = glm(Fat~., data=data3[,1:102])
 stepped = stepAIC(trained)
@@ -274,8 +276,7 @@ The amount of variables selected is $63$
 
 ## 5
 
-```{r ridge,  fig.width=5, fig.height=4, fig.cap="\\label{fig:fig7} ridge coefficients over lambda"}
-library(glmnet)
+```{r ridge, echo=FALSE, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig7} ridge coefficients over lambda"}
 covariates = scale(stepped$model[,2:64])
 response = scale(stepped$model$Fat)
 ridge = glmnet(as.matrix(covariates), response, alpha=0, family="gaussian")
@@ -285,8 +286,7 @@ plot(ridge, xvar="lambda")
 As seen in Figure \ref{fig:fig7}, we see that when lambda gets larger, the coeffiecents converge towards zero.
 
 ## 6. fit LASSO regression model
-```{r}
-library(glmnet)
+```{r, echo=FALSE}
 x = scale(data[,2:101])
 y = scale(data$Fat)
 net_lasso = glmnet(as.matrix(x), y, alpha=1)
@@ -294,8 +294,7 @@ plot(net_lasso, xvar = "lambda", label = TRUE)
 ```
 
 ## 7. use cross-validation to find optimal LASSO model
-```{r}
-library(glmnet)
+```{r, echo=FALSE}
 x = scale(data[,2:101])
 y = scale(data$Fat)
 cvnet_lasso = cv.glmnet(as.matrix(x), y, alpha=1, lambda=c(0, 10^(seq(-6,0.4,0.01))))
