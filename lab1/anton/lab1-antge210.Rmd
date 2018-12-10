@@ -410,6 +410,7 @@ If we look at Figure \ref{fig:cv}, we see that MSE increases with the increase o
 cv1 = cv.glmnet(as.matrix(covariates), response, alpha=1,
                 family="gaussian", lambda=c(0, 10^seq(-6, 1, 0.05)))
 plot(cv1)
+
 ```
 
 ## 4.8
