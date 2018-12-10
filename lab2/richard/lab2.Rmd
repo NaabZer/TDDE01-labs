@@ -7,13 +7,269 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(e1071)
+library(fastICA)
+library(tree)
+library(readxl)
+require(MASS)
 ```
 
-# Lab2
+# Assignment 1 - LDA and logistic regression
 
-## Assignment - LDA and logistic regression
+## 1
 
-```{r}
+```{r, echo=FALSE}
 data = read.csv("australian-crabs.csv")
 plot(data$CL, data$RW, col=ifelse(data$sex=="Female", "red", "blue"))
 ```
+
+It looks like it could be classified by linear discriminant analysis as the data can be seperated by a line.
+
+## 2
+```{r, echo=FALSE}
+lda_model = lda(formula = data$sex ~ data$CL + data$RW, data = data)
+prediction = predict(lda_model)
+plot(data$CL, data$RW, col=ifelse(prediction$class=="Female", "red", "blue"))
+
+missclassification_rate = mean(prediction$class != data$sex)
+sprintf("Missclassification rate: %f", missclassification_rate)
+```
+
+Pretty similar result if you just take a quick glance at the plots. If you look closer you can see that some of the data points that where close to the other group switched over and where predicted as being of the opposite sex.
+
+## 3 Prior p(Male) = 0.9, p(Female) = 0.1
+```{r, echo=FALSE}
+lda_model_prior = lda(formula = data$sex ~ data$CL + data$RW, data = data, prior = c(0.1, 0.9))
+pred_prior = predict(lda_model_prior)
+plot(data$CL, data$RW, col=ifelse(pred_prior$class=="Female", "red", "blue"))
+
+missclassification_rate_prior = mean(pred_prior$class != data$sex)
+sprintf("Missclassification rate: %f", missclassification_rate_prior)
+```
+
+With the prior we can see that a larger portion of data points that where close to the other group where instead predicted as being of the male sex, as one would be inclined to do with such knowledge.
+
+## 4 Compare LDA with logistic regression
+```{r, echo=FALSE, warning=FALSE}
+glm_model = glm(formula = data$sex ~ data$CL + data$RW, family = binomial(link = "logit"), data = data)
+pred_glm = predict(glm_model, type = "response")
+plot(data$CL, data$RW, col=ifelse(pred_glm <= 0.5, "red", "blue")) # female om <= 0.5
+
+pred_sex = ifelse(pred_glm >= 0.5, "Male", "Female")
+
+missclassification_rate_glm = mean(pred_sex != data$sex)
+sprintf("Missclassification rate: %f", missclassification_rate_glm)
+
+slope = coef(glm_model)[2]/(-coef(glm_model)[3])
+intercept = coef(glm_model)[1]/(-coef(glm_model)[3])
+abline(intercept, slope)
+sprintf("Equation of the decision boundary: y = %fx + %f", slope, intercept)
+```
+
+The logistic regression model gave the same missclasification rate as the LDA model, which seems right as they look pretty similar.
+
+
+# Assignment 2 - Analysis of credit scoring
+
+```{r, echo=FALSE}
+## 1 Import data and partition it
+data = read_excel("creditscoring.xls")
+n=dim(data)[1]
+set.seed(12345)
+# training/validation/test as 50/25/25
+id=sample(1:n, floor(n*0.5))
+train=data[id,]
+id1=setdiff(1:n, id)
+set.seed(12345)
+id2=sample(id1, floor(n*0.25))
+valid=data[id2,]
+id3=setdiff(id1,id2)
+test=data[id3,]
+```
+
+## 2 Fit a decision tree to the training data, with impurity:
+#### a. Deviance
+```{r, echo=FALSE}
+tree_dev=tree(as.factor(good_bad)~ ., data=train, split = "deviance")
+pred_dev_train=predict(tree_dev, newdata=train, type="class")
+pred_dev_test=predict(tree_dev, newdata=test, type="class")
+
+missclassification_rate_dev_train = mean(pred_dev_train != train$good_bad)
+sprintf("Missclassification rate train: %f", missclassification_rate_dev_train)
+
+missclassification_rate_dev_test = mean(pred_dev_test != test$good_bad)
+sprintf("Missclassification rate test: %f", missclassification_rate_dev_test)
+```
+
+#### b. Gini index
+```{r, echo=FALSE}
+set.seed(12345)
+tree_gin=tree(as.factor(good_bad)~., data=train, split = "gini")
+pred_gin_train=predict(tree_gin, newdata=train, type="class")
+pred_gin_test=predict(tree_gin, newdata=test, type="class")
+
+missclassification_rate_gin_train = mean(pred_gin_train != train$good_bad)
+sprintf("Missclassification rate train: %f", missclassification_rate_gin_train)
+
+missclassification_rate_gin_test = mean(pred_gin_test != test$good_bad)
+sprintf("Missclassification rate test: %f", missclassification_rate_gin_test)
+```
+
+We are looking for the solution that generalises bests to solving other problems. We see that the Deviance index tree clearly gives us a lower missclassification rate when making predictions using the test data, the data the model was not built upon. Hence the tree using Deviance index is the one we will continue to use below.
+
+## 3 Choose optimal tree depth
+```{r, echo=FALSE}
+set.seed(12345)
+trainScore=rep(0,9)
+testScore=rep(0,9)
+max = 15
+for(i in 2:max) {
+  prunedTree=prune.tree(tree_dev,best=i)
+  pred=predict(prunedTree, newdata=valid, type="tree")
+  trainScore[i]=deviance(prunedTree)
+  testScore[i]=deviance(pred)
+}
+plot(2:max, trainScore[2:max], type="b", col="red", ylim=c(280,560))
+points(2:max, testScore[2:max], type="b", col="blue")
+
+
+finalTree=prune.tree(tree_dev, best=4)
+Yfit_tree=predict(finalTree, newdata=test, type="class")
+tabl = table(test$good_bad,Yfit_tree)
+tabl
+missclassification_rate_final = 1-sum(diag(tabl))/sum(tabl)
+sprintf("Missclassification rate test data: %f", missclassification_rate_final)
+
+plot(finalTree)
+text(finalTree)
+```
+Best is the setting the number of leafs to 4 wich gives us a depth of 3 as we see in the plot of the tree. The number of leafs was chosen as it gave the best result using the validation data. Moreover when interpreting the tree we see that the predictors savings, duration and history is most useful for predicting whether a loan is likely to be payed back.
+
+## 4 Classification using Naive Bayes
+```{r, echo=FALSE, warning=FALSE}
+fit=naiveBayes(as.factor(good_bad)~ ., data=train)
+Yfit=predict(fit, newdata=train)
+table_train = table(Yfit, train$good_bad)
+table_train
+missclassification_rate_final = 1-sum(diag(table_train))/sum(table_train)
+sprintf("Missclassification rate train: %f", missclassification_rate_final)
+
+Yfit_test=predict(fit, newdata=test)
+table_test = table(Yfit_test, test$good_bad)
+table_test
+missclassification_rate_final = 1-sum(diag(table_test))/sum(table_test)
+sprintf("Missclassification rate test: %f", missclassification_rate_final)
+```
+
+Comparing with the optimal tree we found in 4.3 we see that the naives bayes aproach has a higher missclassification rate; it simply performs worse using this data. The tree in 4.3 also is more informative for me as a human which makes further interpretation and analysis simpler.
+
+## 5 Compute TPR, FPR  & plot ROC for models in 3 & 4
+### using classification principle: 
+#### Y = 1 if p(Y='good'|X) > pi, else 0; pi=(0.05, 0.10, ..., 0.95)
+
+```{r, echo=FALSE, warning=FALSE}
+optimal_tree_pred_test = predict(finalTree, newdata=test)
+bayes_test = predict(fit, newdata=test, type= "raw")
+
+# tpr = true positive rate
+# fpr = false positive rate
+tpr_tree = c()
+fpr_tree = c()
+tpr_bayes = c()
+fpr_bayes = c()
+pi = seq(0.05, 0.95, 0.05)
+for (i in pi) {
+  res_tree = ifelse(optimal_tree_pred_test[,2] > i, "good", "bad")
+  mat = matrix(0.0, nrow = 2, ncol = 2)
+  
+  mat[1,1] = sum(test$good_bad == "bad" & res_tree == test$good_bad)
+  mat[1,2] = sum(test$good_bad == "bad" & res_tree != test$good_bad)
+  mat[2,1] = sum(test$good_bad == "good" & res_tree != test$good_bad)
+  mat[2,2] = sum(test$good_bad == "good" & res_tree == test$good_bad)
+  tpr_tree = c(tpr_tree, mat[2,2]/(mat[2,1]+mat[2,2]))
+  fpr_tree = c(fpr_tree, mat[1,2]/(mat[1,1]+mat[1,2]))
+  
+  res_bayes = ifelse(bayes_test[,2] > i, "good", "bad")
+  mat[1,1] = sum(test$good_bad == "bad" & res_bayes == test$good_bad)
+  mat[1,2] = sum(test$good_bad == "bad" & res_bayes != test$good_bad)
+  mat[2,1] = sum(test$good_bad == "good" & res_bayes != test$good_bad)
+  mat[2,2] = sum(test$good_bad == "good" & res_bayes == test$good_bad)
+  tpr_bayes = c(tpr_bayes, mat[2,2]/(mat[2,1]+mat[2,2]))
+  fpr_bayes = c(fpr_bayes, mat[1,2]/(mat[1,1]+mat[1,2]))
+}
+
+plot(fpr_tree, tpr_tree, type="l", col="red", xlim=c(0,1), ylim=c(0,1))
+lines(fpr_bayes, tpr_bayes, type="l", col="blue")
+```
+
+The area under each curve is an indication of how good the diagnostic ability is for the models they represent. As the blue curve, representing the Naive Bayes model, has the highest values this predicts that probably will perform slightly better.
+
+## 6 Loss matrix
+```{r, echo=FALSE, warning=FALSE}
+fit=naiveBayes(as.factor(good_bad)~ ., data=train)
+Yfit_train=predict(fit, newdata=train, type = "raw")
+Yfit_test=predict(fit, newdata=test, type = "raw")
+
+res_train = ifelse(Yfit_train[,1]/Yfit_train[,2] > 1/10, "bad", ifelse(Yfit_train[,2] >= 0.5, "good", "bad"))
+table_train = table(train$good_bad, res_train)
+table_train
+missclassification_rate_final = 1-sum(diag(table_train))/sum(table_train)
+sprintf("Missclassification rate train: %f", missclassification_rate_final)
+
+res_test = ifelse(Yfit_test[,1]/Yfit_test[,2] > 1/10, "bad", ifelse(Yfit_test[,2] >= 0.5, "good", "bad"))
+table_test = table(test$good_bad, res_test)
+table_test
+missclassification_rate_final = 1-sum(diag(table_test))/sum(table_test)
+sprintf("Missclassification rate test: %f", missclassification_rate_final)
+```
+The loss matrix made the missclassification rate increase a lot, totaly changing the tables in comparision with 2.4 .
+
+# Assignment 4 - Principal components
+
+## 1 Standard PCA
+```{r, echo=FALSE}
+data = read.csv2("NIRSpectra.csv")
+data_cp = data
+data_cp$Viscosity = c()
+res=prcomp(data_cp)
+lambda=res$sdev^2
+#eigenvalues
+lambda
+#proportion of variation
+calc = lambda/sum(lambda)*100
+sprintf("%2.3f", calc)
+sprintf("Feature 1 & 2 gives us a percentage of %2.3f", calc[1]+calc[2])
+screeplot(res)
+
+plot(res$x[,1], res$x[,2])
+```
+
+In the plot with all the points we can see some outliners that can be viewed as being 'unusual', as the are not part of the sort of big cloud of points.
+
+## 2 Trace plots
+```{r, echo=FALSE}
+U=res$rotation
+plot(U[,1], main="Traceplot, PC1")
+plot(U[,2],main="Traceplot, PC2")
+```
+
+Yes, PC2 can be explained by mainly a few original features. The features around the peak at index 124 contributes a lot to that component. The range in PC1 is from about 0.08 to 0.110 wich is pretty narrow so no one of the features really stand out.
+
+## 3 Independent Component Analysis
+#### A
+```{r, echo=FALSE}
+set.seed(12345)
+ica = fastICA(data_cp, n.comp = 2)
+w_prim = ica$K %*% ica$W
+plot(w_prim[,1], main="Traceplot, W1")
+plot(w_prim[,2], main="Traceplot, W2")
+```
+
+The measures representing is the loadings, which we can see as the plots look like the ones in 4.2 only mirrored.
+
+#### B
+```{r, echo=FALSE}
+plot(ica$X[,1], ica$X[,2])
+```
+
+The plot plot above looks linear inverse exponential, where there are a lot of points near 0. This in comparision to the plot in 4.1 where it is sort of a cloud of points where it is harder to see their relative importance to each other.
