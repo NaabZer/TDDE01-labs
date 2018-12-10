@@ -1,0 +1,446 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Lab 2, Group B9},
+            pdfauthor={Anton Gefvert, Richard Friberg, Ruben Hillborg},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Lab 2, Group B9}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Anton Gefvert, Richard Friberg, Ruben Hillborg}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{12/10/2018}
+
+
+\begin{document}
+\maketitle
+
+\section{Contributions}\label{contributions}
+
+\begin{itemize}
+\tightlist
+\item
+  Assignment 1: Anton Gefvert
+\item
+  Assignment 2:
+\item
+  Assignment 3:
+\end{itemize}
+
+\section{Assignment 1}\label{assignment-1}
+
+\subsection{1.1}\label{section}
+
+\begin{figure}
+\centering
+\includegraphics{Group_B9_files/figure-latex/load_crabs-1.pdf}
+\caption{\label{fig:crabs} Carapace Length vs Rear Width classified by
+sex}
+\end{figure}
+
+Looking at Figure \ref{fig:crabs}, we see that drawing a line to
+discriminate between male and female crabs on these data would be very
+feasable, thus classifying by linear discriminant analysis would be easy
+in this case.
+
+\subsection{1.2}\label{section-1}
+
+If we compare Figure \ref{fig:crabs_lda} to Figure \ref{fig:crabs}, we
+see that they are very similar. There are some differences when carapace
+length is small, e.g the bottom left point is actually female. but is
+classified as male with the lda. There are also some differences when
+you look at the points which are kind of overlapping each other (some
+males classfied as females and vice versa). We notice though, that the
+bigger the carapace length is, the more accurate the lda model is!
+
+\begin{figure}
+\centering
+\includegraphics{Group_B9_files/figure-latex/lda_crabs-1.pdf}
+\caption{\label{fig:crabs_lda} Carapace Length vs Rear Width classified
+by sex using lda}
+\end{figure}
+
+When using this lda model we get a missclassification rate of \(4.5\%\),
+this indicates that the model is very well fitted to this problem.
+
+\subsection{1.3}\label{section-2}
+
+\begin{figure}
+\centering
+\includegraphics{Group_B9_files/figure-latex/lda_crabs_prior-1.pdf}
+\caption{\label{fig:crabs_lda_prior} Carapace Length vs Rear Width
+classified by sex using lda (with prior)}
+\end{figure}
+
+As seen in Figure \ref{fig:crabs_lda_prior},when using
+\(p(Male)=0.9, p(Female)=0.1\) as a prior, we get (compared to Figure
+\ref{fig:crabs_lda_prior}), as expected when weighting the male sex
+higher, a more male dominated graph. This can especially be seen in the
+lower bounds of carapace length and the values that are pretty close in
+between the two separation (e.g.~the value around \(CL=38\) and
+\(RW=15\) is female in Figure \ref{fig:crabs_lda} and male in Figure
+\ref{fig:crabs_lda_prior}).
+
+If we look at the missclassification rate when using the prior we get a
+missclassification rate of \(8\%\), this is still very good, but almost
+twice as much when not using prior (or rather using a prior
+\(p(Male)=p(Female)=0.5\))
+
+\subsection{1.4}\label{section-3}
+
+\begin{figure}
+\centering
+\includegraphics{Group_B9_files/figure-latex/crab_glm_plot-1.pdf}
+\caption{\label{fig:crabs_glm} Carapace Length vs Rear Width classified
+by sex using glm}
+\end{figure}
+
+If we look at Figure \ref{fig:crabs_glm} we see that it looks very
+similar to all the other figures. It looks very much like Figure
+\ref{fig:crabs_lda}, and is more keen to classify uncertain values as
+female than when using lda with prior.
+
+Missclassification rate for this method is \(3.5\%\), so slightly better
+than the other methods.
+
+The equation for the decision boundary (green line in Figure
+\ref{fig:crabs_glm}) is \(RW = 0.369 CL + 1.08\)
+
+\section{Assignment 2}\label{assignment-2}
+
+\section{Assignment 4 - Principal
+components}\label{assignment-4---principal-components}
+
+\subsection{1 Standard PCA}\label{standard-pca}
+
+\begin{verbatim}
+##   [1] 1.489914e-02 9.998545e-04 2.954195e-05 1.608532e-05 1.091077e-05
+##   [6] 3.939315e-06 1.414911e-06 4.981545e-07 4.262849e-07 2.577774e-07
+##  [11] 2.080001e-07 1.587511e-07 1.425823e-07 1.126727e-07 7.232246e-08
+##  [16] 6.878939e-08 5.307373e-08 4.373598e-08 3.975200e-08 3.627181e-08
+##  [21] 3.473207e-08 2.838554e-08 2.750156e-08 2.356802e-08 2.057859e-08
+##  [26] 1.921151e-08 1.772579e-08 1.719151e-08 1.546958e-08 1.450458e-08
+##  [31] 1.349010e-08 1.229577e-08 1.210005e-08 1.144210e-08 1.068630e-08
+##  [36] 1.046807e-08 9.148433e-09 8.884085e-09 8.567593e-09 8.126130e-09
+##  [41] 7.768325e-09 7.271742e-09 7.005011e-09 6.462762e-09 6.415715e-09
+##  [46] 6.123419e-09 5.705293e-09 5.634860e-09 5.489343e-09 5.237779e-09
+##  [51] 5.146764e-09 4.927885e-09 4.683481e-09 4.541157e-09 4.483382e-09
+##  [56] 4.334378e-09 4.102898e-09 3.859924e-09 3.754631e-09 3.735784e-09
+##  [61] 3.569046e-09 3.458093e-09 3.357414e-09 3.280258e-09 3.117910e-09
+##  [66] 3.077594e-09 2.965870e-09 2.877830e-09 2.821708e-09 2.689767e-09
+##  [71] 2.553543e-09 2.451608e-09 2.443009e-09 2.351475e-09 2.323987e-09
+##  [76] 2.261444e-09 2.210244e-09 2.146417e-09 2.044353e-09 1.957622e-09
+##  [81] 1.932558e-09 1.871133e-09 1.864625e-09 1.752181e-09 1.698602e-09
+##  [86] 1.676920e-09 1.656262e-09 1.581932e-09 1.557666e-09 1.467634e-09
+##  [91] 1.410370e-09 1.380420e-09 1.347822e-09 1.336314e-09 1.236098e-09
+##  [96] 1.209134e-09 1.179186e-09 1.123574e-09 1.068961e-09 9.985917e-10
+## [101] 9.858015e-10 9.526850e-10 8.980246e-10 8.728980e-10 8.288593e-10
+## [106] 8.144341e-10 7.545504e-10 7.293165e-10 7.199373e-10 6.733103e-10
+## [111] 6.580809e-10 6.168986e-10 6.099031e-10 5.763810e-10 5.525311e-10
+## [116] 5.421167e-10 5.266189e-10 5.093443e-10 4.827224e-10 4.463711e-10
+## [121] 4.127067e-10 3.895925e-10 3.786334e-10 3.495125e-10 3.033627e-10
+## [126] 2.675822e-10
+\end{verbatim}
+
+\begin{verbatim}
+##   [1] "93.332" "6.263"  "0.185"  "0.101"  "0.068"  "0.025"  "0.009" 
+##   [8] "0.003"  "0.003"  "0.002"  "0.001"  "0.001"  "0.001"  "0.001" 
+##  [15] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+##  [22] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+##  [29] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+##  [36] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+##  [43] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+##  [50] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+##  [57] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+##  [64] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+##  [71] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+##  [78] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+##  [85] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+##  [92] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+##  [99] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+## [106] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+## [113] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000" 
+## [120] "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"  "0.000"
+\end{verbatim}
+
+\begin{verbatim}
+## [1] "Feature 1 & 2 gives us a percentage of 99.596"
+\end{verbatim}
+
+\includegraphics{Group_B9_files/figure-latex/unnamed-chunk-1-1.pdf}
+\includegraphics{Group_B9_files/figure-latex/unnamed-chunk-1-2.pdf}
+
+In the plot with all the points we can see some outliners that can be
+viewed as being `unusual', as the are not part of the sort of big cloud
+of points.
+
+\subsection{2 Trace plots}\label{trace-plots}
+
+\includegraphics{Group_B9_files/figure-latex/unnamed-chunk-2-1.pdf}
+\includegraphics{Group_B9_files/figure-latex/unnamed-chunk-2-2.pdf}
+
+Yes, PC2 can be explained by mainly a few original features. The
+features around the peak at index 124 contributes a lot to that
+component. The range in PC1 is from about 0.08 to 0.110 wich is pretty
+narrow so no one of the features really stand out.
+
+\subsection{3 Independent Component
+Analysis}\label{independent-component-analysis}
+
+\paragraph{A}\label{a}
+
+\includegraphics{Group_B9_files/figure-latex/unnamed-chunk-3-1.pdf}
+\includegraphics{Group_B9_files/figure-latex/unnamed-chunk-3-2.pdf}
+
+The measures representing is the loadings, which we can see as the plots
+look like the ones in 4.2 only mirrored.
+
+\paragraph{B}\label{b}
+
+\includegraphics{Group_B9_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+The plot plot above looks linear inverse exponential, where there are a
+lot of points near 0. This in comparision to the plot in 4.1 where it is
+sort of a cloud of points where it is harder to see their relative
+importance to each other.
+
+\pagebreak
+\# Code appendix
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#setup}
+\NormalTok{knitr}\OperatorTok{::}\NormalTok{opts_chunk}\OperatorTok{$}\KeywordTok{set}\NormalTok{(}\DataTypeTok{echo =} \OtherTok{FALSE}\NormalTok{, }\DataTypeTok{warning=}\NormalTok{F)}
+\KeywordTok{library}\NormalTok{(MASS)}
+\KeywordTok{library}\NormalTok{(readxl)}
+\KeywordTok{library}\NormalTok{(knitr)}
+\KeywordTok{library}\NormalTok{(tree)}
+\KeywordTok{library}\NormalTok{(e1071)}
+\KeywordTok{library}\NormalTok{(ROCR)}
+\KeywordTok{library}\NormalTok{(fastICA)}
+
+\CommentTok{#1.1}
+\NormalTok{data1 =}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"australian-crabs.csv"}\NormalTok{)}
+
+\NormalTok{male_data =}\StringTok{ }\NormalTok{data1[data1}\OperatorTok{$}\NormalTok{sex }\OperatorTok{==}\StringTok{ "Male"}\NormalTok{,]}
+\NormalTok{female_data =}\StringTok{ }\NormalTok{data1[data1}\OperatorTok{$}\NormalTok{sex }\OperatorTok{==}\StringTok{ "Female"}\NormalTok{,]}
+
+\KeywordTok{plot}\NormalTok{(data1}\OperatorTok{$}\NormalTok{CL, data1}\OperatorTok{$}\NormalTok{RW, }\DataTypeTok{ylab=}\StringTok{"Rear Width"}\NormalTok{, }\DataTypeTok{xlab=}\StringTok{" Carapace length"}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(male_data}\OperatorTok{$}\NormalTok{CL, male_data}\OperatorTok{$}\NormalTok{RW, }\DataTypeTok{col=}\StringTok{"blue"}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(female_data}\OperatorTok{$}\NormalTok{CL, female_data}\OperatorTok{$}\NormalTok{RW, }\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+
+\KeywordTok{legend}\NormalTok{(}\DecValTok{35}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{c}\NormalTok{(}\StringTok{"Male crabs"}\NormalTok{, }\StringTok{"Female crabs"}\NormalTok{),}
+       \DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{"blue"}\NormalTok{, }\StringTok{"red"}\NormalTok{), }\DataTypeTok{lty=}\DecValTok{1}\NormalTok{, }\DataTypeTok{cex=}\FloatTok{0.8}\NormalTok{)}
+
+\CommentTok{#1.2}
+\NormalTok{lda_crabs =}\StringTok{ }\KeywordTok{lda}\NormalTok{(sex }\OperatorTok{~}\StringTok{ }\NormalTok{CL }\OperatorTok{+}\StringTok{ }\NormalTok{RW, }\DataTypeTok{data=}\NormalTok{data1, }\DataTypeTok{CV=}\OtherTok{TRUE}\NormalTok{)}
+\NormalTok{pred_female_data =}\StringTok{ }\NormalTok{data1[lda_crabs}\OperatorTok{$}\NormalTok{posterior[,}\DecValTok{1}\NormalTok{] }\OperatorTok{>}\StringTok{ }\NormalTok{lda_crabs}\OperatorTok{$}\NormalTok{posterior[,}\DecValTok{2}\NormalTok{],]}
+\NormalTok{pred_male_data =}\StringTok{ }\NormalTok{data1[lda_crabs}\OperatorTok{$}\NormalTok{posterior[,}\DecValTok{2}\NormalTok{] }\OperatorTok{>}\StringTok{ }\NormalTok{lda_crabs}\OperatorTok{$}\NormalTok{posterior[,}\DecValTok{1}\NormalTok{],]}
+
+\KeywordTok{plot}\NormalTok{(data1}\OperatorTok{$}\NormalTok{CL, data1}\OperatorTok{$}\NormalTok{RW, }\DataTypeTok{ylab=}\StringTok{"Rear Width"}\NormalTok{, }\DataTypeTok{xlab=}\StringTok{" Carapace length"}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(pred_male_data}\OperatorTok{$}\NormalTok{CL, pred_male_data}\OperatorTok{$}\NormalTok{RW, }\DataTypeTok{col=}\StringTok{"blue"}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(pred_female_data}\OperatorTok{$}\NormalTok{CL, pred_female_data}\OperatorTok{$}\NormalTok{RW, }\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+
+\KeywordTok{legend}\NormalTok{(}\DecValTok{35}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{c}\NormalTok{(}\StringTok{"Male crabs"}\NormalTok{, }\StringTok{"Female crabs"}\NormalTok{),}
+       \DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{"blue"}\NormalTok{, }\StringTok{"red"}\NormalTok{), }\DataTypeTok{lty=}\DecValTok{1}\NormalTok{, }\DataTypeTok{cex=}\FloatTok{0.8}\NormalTok{)}
+
+\NormalTok{pred_sex_list =}\StringTok{ }\NormalTok{lda_crabs}\OperatorTok{$}\NormalTok{posterior[,}\DecValTok{2}\NormalTok{] }\OperatorTok{>}\StringTok{ }\NormalTok{lda_crabs}\OperatorTok{$}\NormalTok{posterior[,}\DecValTok{1}\NormalTok{] }\CommentTok{# True is male}
+\NormalTok{sex_list =}\StringTok{ }\NormalTok{data1}\OperatorTok{$}\NormalTok{sex }\OperatorTok{==}\StringTok{ "Male"} \CommentTok{# True is male}
+
+\NormalTok{wrongs =}\StringTok{ }\KeywordTok{length}\NormalTok{(data1[sex_list }\OperatorTok{!=}\StringTok{ }\NormalTok{pred_sex_list, ][,}\DecValTok{1}\NormalTok{])}
+
+\NormalTok{missclassification =}\StringTok{ }\NormalTok{wrongs }\OperatorTok{/}\StringTok{ }\KeywordTok{length}\NormalTok{(data1[,}\DecValTok{1}\NormalTok{])}
+
+\NormalTok{missclassification}
+
+\CommentTok{#1.3}
+\NormalTok{lda_crabs =}\StringTok{ }\KeywordTok{lda}\NormalTok{(sex }\OperatorTok{~}\StringTok{ }\NormalTok{CL }\OperatorTok{+}\StringTok{ }\NormalTok{RW, }\DataTypeTok{data=}\NormalTok{data1, }\DataTypeTok{CV=}\OtherTok{TRUE}\NormalTok{, }\DataTypeTok{prior=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.9}\NormalTok{))}
+\NormalTok{pred_female_data =}\StringTok{ }\NormalTok{data1[lda_crabs}\OperatorTok{$}\NormalTok{posterior[,}\DecValTok{1}\NormalTok{] }\OperatorTok{>}\StringTok{ }\NormalTok{lda_crabs}\OperatorTok{$}\NormalTok{posterior[,}\DecValTok{2}\NormalTok{],]}
+\NormalTok{pred_male_data =}\StringTok{ }\NormalTok{data1[lda_crabs}\OperatorTok{$}\NormalTok{posterior[,}\DecValTok{2}\NormalTok{] }\OperatorTok{>}\StringTok{ }\NormalTok{lda_crabs}\OperatorTok{$}\NormalTok{posterior[,}\DecValTok{1}\NormalTok{],]}
+
+\KeywordTok{plot}\NormalTok{(data1}\OperatorTok{$}\NormalTok{CL, data1}\OperatorTok{$}\NormalTok{RW, }\DataTypeTok{ylab=}\StringTok{"Rear Width"}\NormalTok{, }\DataTypeTok{xlab=}\StringTok{" Carapace length"}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(pred_male_data}\OperatorTok{$}\NormalTok{CL, pred_male_data}\OperatorTok{$}\NormalTok{RW, }\DataTypeTok{col=}\StringTok{"blue"}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(pred_female_data}\OperatorTok{$}\NormalTok{CL, pred_female_data}\OperatorTok{$}\NormalTok{RW, }\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+
+\KeywordTok{legend}\NormalTok{(}\DecValTok{35}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{c}\NormalTok{(}\StringTok{"Male crabs"}\NormalTok{, }\StringTok{"Female crabs"}\NormalTok{),}
+       \DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{"blue"}\NormalTok{, }\StringTok{"red"}\NormalTok{), }\DataTypeTok{lty=}\DecValTok{1}\NormalTok{, }\DataTypeTok{cex=}\FloatTok{0.8}\NormalTok{)}
+
+\NormalTok{pred_sex_list =}\StringTok{ }\NormalTok{lda_crabs}\OperatorTok{$}\NormalTok{posterior[,}\DecValTok{2}\NormalTok{] }\OperatorTok{>}\StringTok{ }\NormalTok{lda_crabs}\OperatorTok{$}\NormalTok{posterior[,}\DecValTok{1}\NormalTok{] }\CommentTok{# True is male}
+\NormalTok{sex_list =}\StringTok{ }\NormalTok{data1}\OperatorTok{$}\NormalTok{sex }\OperatorTok{==}\StringTok{ "Male"} \CommentTok{# True is male}
+
+\NormalTok{wrongs =}\StringTok{ }\KeywordTok{length}\NormalTok{(data1[sex_list }\OperatorTok{!=}\StringTok{ }\NormalTok{pred_sex_list, ][,}\DecValTok{1}\NormalTok{])}
+
+\NormalTok{missclassification =}\StringTok{ }\NormalTok{wrongs }\OperatorTok{/}\StringTok{ }\KeywordTok{length}\NormalTok{(data1[,}\DecValTok{1}\NormalTok{])}
+
+\NormalTok{missclassification}
+
+\CommentTok{#1.4}
+\NormalTok{crab_glm =}\StringTok{ }\KeywordTok{glm}\NormalTok{(sex }\OperatorTok{~}\StringTok{ }\NormalTok{CL }\OperatorTok{+}\StringTok{ }\NormalTok{RW, }\DataTypeTok{data =}\NormalTok{ data1, }\DataTypeTok{family=}\KeywordTok{binomial}\NormalTok{())}
+\NormalTok{glm_pred =}\StringTok{ }\KeywordTok{predict}\NormalTok{(crab_glm, }\DataTypeTok{type=}\StringTok{"response"}\NormalTok{)}
+
+\NormalTok{male_glm =}\StringTok{ }\NormalTok{data1[glm_pred }\OperatorTok{>=}\StringTok{ }\FloatTok{0.5}\NormalTok{,]}
+\NormalTok{female_glm =}\StringTok{ }\NormalTok{data1[glm_pred }\OperatorTok{<}\StringTok{ }\FloatTok{0.5}\NormalTok{,]}
+
+\KeywordTok{plot}\NormalTok{(data1}\OperatorTok{$}\NormalTok{CL, data1}\OperatorTok{$}\NormalTok{RW, }\DataTypeTok{ylab=}\StringTok{"Rear Width"}\NormalTok{, }\DataTypeTok{xlab=}\StringTok{" Carapace length"}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(male_glm}\OperatorTok{$}\NormalTok{CL, male_glm}\OperatorTok{$}\NormalTok{RW, }\DataTypeTok{col=}\StringTok{"blue"}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(female_glm}\OperatorTok{$}\NormalTok{CL, female_glm}\OperatorTok{$}\NormalTok{RW, }\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+
+\NormalTok{slope =}\StringTok{ }\KeywordTok{coef}\NormalTok{(crab_glm)[}\DecValTok{2}\NormalTok{]}\OperatorTok{/}\NormalTok{(}\OperatorTok{-}\KeywordTok{coef}\NormalTok{(crab_glm)[}\DecValTok{3}\NormalTok{])}
+\NormalTok{intercept =}\StringTok{ }\KeywordTok{coef}\NormalTok{(crab_glm)[}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\NormalTok{(}\OperatorTok{-}\KeywordTok{coef}\NormalTok{(crab_glm)[}\DecValTok{3}\NormalTok{]) }
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{a=}\NormalTok{intercept, }\DataTypeTok{b=}\NormalTok{slope, }\DataTypeTok{col=}\StringTok{"green"}\NormalTok{)}
+
+\KeywordTok{legend}\NormalTok{(}\DecValTok{33}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{c}\NormalTok{(}\StringTok{"Male crabs"}\NormalTok{, }\StringTok{"Female crabs"}\NormalTok{, }\StringTok{"Decision boundary"}\NormalTok{),}
+       \DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{"blue"}\NormalTok{, }\StringTok{"red"}\NormalTok{, }\StringTok{"green"}\NormalTok{), }\DataTypeTok{lty=}\DecValTok{1}\NormalTok{, }\DataTypeTok{cex=}\FloatTok{0.8}\NormalTok{)}
+
+\NormalTok{glm_sex_list =}\StringTok{ }\NormalTok{glm_pred }\OperatorTok{>}\StringTok{ }\FloatTok{0.5} \CommentTok{# True is male}
+\NormalTok{sex_list =}\StringTok{ }\NormalTok{data1}\OperatorTok{$}\NormalTok{sex }\OperatorTok{==}\StringTok{ "Male"} \CommentTok{# True is male}
+
+\NormalTok{wrongs =}\StringTok{ }\KeywordTok{length}\NormalTok{(data1[sex_list }\OperatorTok{!=}\StringTok{ }\NormalTok{glm_sex_list, ][,}\DecValTok{1}\NormalTok{])}
+
+\NormalTok{missclassification =}\StringTok{ }\NormalTok{wrongs }\OperatorTok{/}\StringTok{ }\KeywordTok{length}\NormalTok{(data1[,}\DecValTok{1}\NormalTok{])}
+
+\CommentTok{#missclassification}
+\CommentTok{#slope}
+\CommentTok{#intercept}
+
+\NormalTok{data =}\StringTok{ }\KeywordTok{read.csv2}\NormalTok{(}\StringTok{"NIRSpectra.csv"}\NormalTok{)}
+\NormalTok{data_cp =}\StringTok{ }\NormalTok{data}
+\NormalTok{data_cp}\OperatorTok{$}\NormalTok{Viscosity =}\StringTok{ }\KeywordTok{c}\NormalTok{()}
+\NormalTok{res=}\KeywordTok{prcomp}\NormalTok{(data_cp)}
+\NormalTok{lambda=res}\OperatorTok{$}\NormalTok{sdev}\OperatorTok{^}\DecValTok{2}
+\CommentTok{#eigenvalues}
+\NormalTok{lambda}
+\CommentTok{#proportion of variation}
+\NormalTok{calc =}\StringTok{ }\NormalTok{lambda}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(lambda)}\OperatorTok{*}\DecValTok{100}
+\KeywordTok{sprintf}\NormalTok{(}\StringTok{"%2.3f"}\NormalTok{, calc)}
+\KeywordTok{sprintf}\NormalTok{(}\StringTok{"Feature 1 & 2 gives us a percentage of %2.3f"}\NormalTok{, calc[}\DecValTok{1}\NormalTok{]}\OperatorTok{+}\NormalTok{calc[}\DecValTok{2}\NormalTok{])}
+\KeywordTok{screeplot}\NormalTok{(res)}
+
+\KeywordTok{plot}\NormalTok{(res}\OperatorTok{$}\NormalTok{x[,}\DecValTok{1}\NormalTok{], res}\OperatorTok{$}\NormalTok{x[,}\DecValTok{2}\NormalTok{])}
+\NormalTok{U=res}\OperatorTok{$}\NormalTok{rotation}
+\KeywordTok{plot}\NormalTok{(U[,}\DecValTok{1}\NormalTok{], }\DataTypeTok{main=}\StringTok{"Traceplot, PC1"}\NormalTok{)}
+\KeywordTok{plot}\NormalTok{(U[,}\DecValTok{2}\NormalTok{],}\DataTypeTok{main=}\StringTok{"Traceplot, PC2"}\NormalTok{)}
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{12345}\NormalTok{)}
+\NormalTok{ica =}\StringTok{ }\KeywordTok{fastICA}\NormalTok{(data_cp, }\DataTypeTok{n.comp =} \DecValTok{2}\NormalTok{)}
+\NormalTok{w_prim =}\StringTok{ }\NormalTok{ica}\OperatorTok{$}\NormalTok{K }\OperatorTok{%*%}\StringTok{ }\NormalTok{ica}\OperatorTok{$}\NormalTok{W}
+\KeywordTok{plot}\NormalTok{(w_prim[,}\DecValTok{1}\NormalTok{], }\DataTypeTok{main=}\StringTok{"Traceplot, W1"}\NormalTok{)}
+\KeywordTok{plot}\NormalTok{(w_prim[,}\DecValTok{2}\NormalTok{], }\DataTypeTok{main=}\StringTok{"Traceplot, W2"}\NormalTok{)}
+\KeywordTok{plot}\NormalTok{(ica}\OperatorTok{$}\NormalTok{X[,}\DecValTok{1}\NormalTok{], ica}\OperatorTok{$}\NormalTok{X[,}\DecValTok{2}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+
+\end{document}

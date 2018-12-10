@@ -2,7 +2,9 @@
 title: "Lab 2, Group B9"
 author: "Anton Gefvert, Richard Friberg, Ruben Hillborg"
 date: "12/10/2018"
-output: 
+output:
+  html_document:
+    df_print: paged
   pdf_document:
     fig_caption: yes
 ---
@@ -22,8 +24,8 @@ library(fastICA)
 
 # Contributions
 * Assignment 1: Anton Gefvert
-* Assignment 2:
-* Assignment 3:
+* Assignment 2: Ruben Hillborg
+* Assignment 3: Richard Friberg
 
 # Assignment 1
 
@@ -165,7 +167,61 @@ The equation for the decision boundary (green line in Figure \ref{fig:crabs_glm}
 
 # Assignment 2
 
+# Assignment 4 - Principal components
 
+## 1 Standard PCA
+```{r, echo=FALSE}
+# 4.1
+data = read.csv2("NIRSpectra.csv")
+data_cp = data
+data_cp$Viscosity = c()
+res=prcomp(data_cp)
+lambda=res$sdev^2
+#eigenvalues
+lambda
+#proportion of variation
+calc = lambda/sum(lambda)*100
+sprintf("%2.3f", calc)
+sprintf("Feature 1 & 2 gives us a percentage of %2.3f", calc[1]+calc[2])
+screeplot(res)
+
+plot(res$x[,1], res$x[,2])
+
+```
+
+In the plot with all the points we can see some outliners that can be viewed as being 'unusual', as the are not part of the sort of big cloud of points.
+
+## 2 Trace plots
+```{r, echo=FALSE}
+# 4.2
+U=res$rotation
+plot(U[,1], main="Traceplot, PC1")
+plot(U[,2],main="Traceplot, PC2")
+
+```
+
+Yes, PC2 can be explained by mainly a few original features. The features around the peak at index 124 contributes a lot to that component. The range in PC1 is from about 0.08 to 0.110 wich is pretty narrow so no one of the features really stand out.
+
+## 3 Independent Component Analysis
+#### A
+```{r, echo=FALSE}
+# 4.3
+set.seed(12345)
+ica = fastICA(data_cp, n.comp = 2)
+w_prim = ica$K %*% ica$W
+plot(w_prim[,1], main="Traceplot, W1")
+plot(w_prim[,2], main="Traceplot, W2")
+
+```
+
+The measures representing is the loadings, which we can see as the plots look like the ones in 4.2 only mirrored.
+
+#### B
+```{r, echo=FALSE}
+plot(ica$X[,1], ica$X[,2])
+```
+
+The plot plot above looks linear inverse exponential, where there are a lot of points near 0. This in comparision to the plot in 4.1 where it is sort of a cloud of points where it is harder to see their relative importance to each other.
 
 \pagebreak
 # Code appendix
