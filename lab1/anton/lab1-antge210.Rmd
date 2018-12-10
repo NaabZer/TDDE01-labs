@@ -33,8 +33,8 @@ test1 = data1[-id,]
 
 ```
 
-## Task 2 - p(Y = 1|X) > 0.5
-```{r glm1}
+## 1.2
+```{r glm1, warning=F}
 #1.2
 trained = glm(Spam ~ ., data = train1, family=binomial())
 pred_train = predict(trained,  newdata = train1, type="response")
@@ -43,19 +43,22 @@ pred_test = predict(trained,  newdata = test1, type="response")
 
 #### Confusion matrix for training set:
 ```{r glm1_tr}
+
 #Confusion matrix training
-y_hat_tr1 = pred_train > 0.5
-kable(table(y_hat_tr1, t(train1[,49])),
-      caption = "Confusion matrix for training set using threshold 0.5")
+y_hat_tr1 = as.numeric(pred_train > 0.5)
+kable(table(t(train1[,49]), y_hat_tr1),
+      caption = "Confusion matrix for training set using threshold 0.5",
+      col.names = c("Actual 0", "Actual 1"))
 ```
 
 #### Confusion matrix for test set:
 ```{r glm1_te}
 
 #Confusion matrix test
-y_hat_te1 = pred_test > 0.5
-kable(table(y_hat_te1, t(test1[,49])),
-      caption = "Confusion matrix for test set using threshold 0.5")
+y_hat_te1 = as.numeric(pred_test > 0.5)
+kable(table(t(test1[,49]), y_hat_te1),
+      caption = "Confusion matrix for test set using threshold 0.5",
+      col.names = c("Actual 0", "Actual 1"))
 ```
 
 As we can see in Table 1 and Table 2, the results using the formula 
@@ -75,23 +78,25 @@ gives the following statisticts:
   * missclassification: $243/1370 = 0.177 = 17.7\%$
   
 \newpage
-## Task 3 - p(Y = 1|X) > 0.9
+## 1.3
 
 #### Confusion matrix for training set:
 ```{r glm2_tr}
 #1.3 training
-y_hat_tr2 = pred_train > 0.9
-kable(table(y_hat_tr2, t(train1[,49])),
-      caption = "Confusion matrix for train set using threshold 0.9")
+y_hat_tr2 = as.numeric(pred_train > 0.9)
+kable(table(t(train1[,49]),y_hat_tr2),
+      caption = "Confusion matrix for train set using threshold 0.9",
+      col.names = c("Actual 0", "Actual 1"))
 ```
   
 #### Confusion matrix for test set:
 ```{r glm2_te}
 
 #test
-y_hat_te2 = pred_test > 0.9
-kable(table(y_hat_te2, t(test1[,49])),
-      caption = "Confusion matrix for test set using threshold 0.9")
+y_hat_te2 = as.numeric(pred_test > 0.9)
+kable(table(t(test1[,49]), y_hat_te2),
+      caption = "Confusion matrix for test set using threshold 0.9",
+      col.names = c("Actual 0", "Actual 1"))
 ```
 
 What we see from Table 3 and Table 4, is that when we increase the constraint for marking an email as spam, we get way less false positives (1 instead of 50 in test set), but the false negatives are increased. 
@@ -102,15 +107,16 @@ Missclassifications:
   
 As we can see, the missclassification is increased, but you could argue that in this case, marking a non-spam email as spam, is way worse than letting through spam. It's easier for the recipient to filter away less spam, than to check through the spam mail to fins non-spam emails among them. In this case though, there are barely any true positives, so this "spam-filter" will pretty much do nothing.
 
-## Task 4 - knn, k = 30
+## 1.4 
 #### Confusion matrix for train set
 ```{r kknn30_tr}
 
 #1.4 train
 res = kknn(Spam ~ ., train1, train1, k = 30)
-y_hat_tr3 = res[["fitted.values"]] > 0.5
-kable(table(y_hat_tr3, t(train1[,49])),
-      caption = "Confusion matrix for train set using knn with k = 30")
+y_hat_tr3 = as.numeric(res[["fitted.values"]] > 0.5)
+kable(table(t(train1[,49]), y_hat_tr3),
+      caption = "Confusion matrix for train set using knn with k = 30",
+      col.names = c("Actual 0", "Actual 1"))
 ```
 
 #### Confusion matrix for test set
@@ -118,9 +124,10 @@ kable(table(y_hat_tr3, t(train1[,49])),
 
 #test
 res = kknn(Spam ~ ., train1, test1, k = 30)
-y_hat_te3 = res[["fitted.values"]] > 0.5
-kable(table(y_hat_te3, t(test1[,49])),
-      caption = "Confusion matrix for test set using knn with k = 30")
+y_hat_te3 = as.numeric(res[["fitted.values"]] > 0.5)
+kable(table(t(test1[,49]), y_hat_te3),
+      caption = "Confusion matrix for test set using knn with k = 30",
+      col.names = c("Actual 0", "Actual 1"))
 ```
 
 As we can see from Table 5 and Table 6 we get the following missclassification rates:
@@ -136,9 +143,10 @@ What we see here is that missclassification rate for train set is way lower than
 
 #1.5 train
 res = kknn(Spam ~ ., train1, train1, k = 1)
-y_hat_tr3 = res[["fitted.values"]] > 0.5
-kable(table(y_hat_tr3, t(train1[,49])),
-      caption = "Confusion matrix for train set using knn with k = 1")
+y_hat_tr3 = as.numeric(res[["fitted.values"]] > 0.5)
+kable(table(t(train1[,49]), y_hat_tr3),
+      caption = "Confusion matrix for train set using knn with k = 1",
+      col.names = c("Actual 0", "Actual 1"))
 ```
 
 #### Confusion matrix for test set
@@ -146,9 +154,10 @@ kable(table(y_hat_tr3, t(train1[,49])),
 
 #test
 res = kknn(Spam ~ ., train1, test1, k = 1)
-y_hat_te3 = res[["fitted.values"]] > 0.5
-kable(table(y_hat_te3, t(test1[,49])),
-      caption = "Confusion matrix for test set using knn with k = 1")
+y_hat_te3 = as.numeric(res[["fitted.values"]] > 0.5)
+kable(table(t(test1[,49]), y_hat_te3),
+      caption = "Confusion matrix for test set using knn with k = 1",
+      col.names = c("Actual 0", "Actual 1"))
 ```
 
 
@@ -167,9 +176,10 @@ The test set gets slightly worse than in exercise 4.
 ```{r data2}
 #2.1
 data2 <- read_excel("machines.xlsx")
+
 ```
 
-## Task 2
+## 2.2
 The distribution type of $p(x|\theta)$ is a exponential distribution, a distribution that models the time between events in a poisson distribution.
 
 ```{r ll1}
@@ -197,14 +207,14 @@ maxindex = match(max(logs1), logs1)
 maxlog = logs1[maxindex]
 maxtheta = thetas[maxindex]
 points(maxtheta, maxlog)
+
 ```
 
 As seen in Figure \ref{fig:fig1}, the maximum loglikelyhood is given for $\theta = 1.13$ and gives the value $loglik \approx -42.3$
 
-## Task 3
+## 2.3
 
 ```{r plot_full_ll2,  fig.width=5, fig.height=4, fig.cap="\\label{fig:fig2} log likelyhood for task 3"}
-
 #2.3
 thetas = seq(0, 8, 0.01)
 logs1 = ll1(data2, thetas)
@@ -228,6 +238,7 @@ maxindex = match(max(logs2), logs2)
 maxlog = logs2[maxindex]
 maxtheta = thetas[maxindex]
 points(maxtheta, maxlog)
+
 ```
 
 As seen in Figure \ref{fig:fig2}, the maximum log likelyhood with just the first six variables from $x$ (red line), is given for $\theta = 1.79$ and gives the value $loglik \approx -2.52$.
@@ -235,7 +246,7 @@ As seen in Figure \ref{fig:fig2}, the maximum log likelyhood with just the first
 What we can see from these figures is that the loglikelyhood has a way pointier graf in the case where all values of $x$ is used, meaning it's more reliable (which is reasonable, since we have more datapoints). Whereas in the case with only the first sic values of $x$, the graph is much more flat top and with more values close to the maximum loglikelyhood.
 
 \pagebreak
-## Task 4
+## 2.4
 $$L(\theta) \propto p(\theta | x) \propto p(x | \theta)p(\theta) \propto \theta \left( \prod\limits_{i=1}^n e^{-\theta x_i}\right) 10 e^{-10 \theta}$$
 
 Gives us
@@ -271,54 +282,56 @@ points(maxtheta, maxlog)
 The new loglikelihood based on a prior is maximized at $\theta = 1.79$ and gives $loglik \approx -2.51$, if we compare this to the result given when not using a prior, we get about the same loglikelihood and a similar $\theta$, albeit a bit smaller.
 If we look at the graph in Figure \ref{fig:fig3}, we see that the one using a prior has a smaller peak, this shows it has a higher certainty (given the conditions) of what $\theta$ is.
 
-## Task 5
+## 2.5
 
-```{r hists, fig.width=3, fig.height=3, fig.cap="\\label{fig:fig4} log likelyhood for task 4"}
+```{r hists, fig.width=3, fig.height=3, fig.cap="\\label{fig:fig4} log likelyhood for task 4", fig.scap=NA, fig.show='hold'}
 
 #3.5
+set.seed(12345)
 random_x = rexp(50, maxtheta)
 data_numeric = as.numeric(as.character(data2$Length))
-hist(data_numeric, probability=TRUE,breaks=seq(0,5,0.5),
+hist(data_numeric, probability=TRUE,breaks=seq(0,8,0.5),
      ylim=c(0,1), xlab="Length", main="Original data")
-hist(random_x, probability=TRUE,breaks=seq(0,5,0.5),
+hist(random_x, probability=TRUE,breaks=seq(0,8,0.5),
      ylim=c(0,1), xlab="Length", main="Generated data")
 ```
 
-As seen in the above figures(couldn't for the life of me get captions to work with two histograms), we see that the distributions are very similiar.
+As seen in the above figures(couldn't for the life of me get captions to work with two histograms), we see that the distributions are similiar.
 
-They are not identical, the value of the original data seems to have more datapoints closer to zero, but we clearly see both have higher values for lower lengths, and then it decreases following approximately a exponential curve.
+They are not identical though, the value of the original data follows an exponential curve much more clearly, in the generated data.
 
 # Assignment 4
 
-## 1
+## 4.1
 ```{r data3}
 #4.1
 data3 <- read_excel("tecator.xlsx")
 ```
 
-```{r propteinplot, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig5} Moisture vs protein"}
+```{r propteinplot, fig.width=5, fig.height=4, fig.cap="\\label{fig:m_v_p} Moisture vs protein"}
 
 plot(data3$Protein, data3$Moisture, type="n", xlab="Protein", ylab="Moisture")
 points(data3$Protein, data3$Moisture)
+
 ```
 
-Looking at Figure \ref{fig:fig5}, most of the datapoints are located in a basically linear line,
+Looking at Figure \ref{fig:m_v_p}, most of the datapoints are located in a basically linear line,
 which implies the model is described well by a linear model.
 
-## 2
+## 4.2
 
 A model that describes $M_i$ can be written as
-$$y \sim N \left( \sum \limits_{n=1}^{i} x^i, \sigma^2 \right)$$
-where $x$ is the Protein data.
+$$y \sim N \left( \sum \limits_{n=0}^{i} w_ix^i, \sigma^2 \right)$$
+where $x$ is the Protein data, $y$ is the Moisture and $w_0$ to $w_i$ are weights.
 
 MSE is appropriate because MSE gives exponentially higher error the bigger the error,
 this means an overfitted model which work bad on validation data will give a larger error,
 a decently fitted model will give a smaller error.
+Also, for a gaussian model, minimizing the MSE is equivalent to maximizing loglikelihood!
 
 \pagebreak
-## 3
+## 4.3
 ```{r div_data3}
-
 #4.3
 n=dim(data3)[1]
 set.seed(12345)
@@ -327,7 +340,7 @@ train3 = data3[id,]
 test3 = data3[-id,]
 ```
 
-```{r fit_data3_lin, fig.width=5, fig.height=4, fig.cap="\\label{fig:fig6} MSE for diffrent $i$ in $M_i$"}
+```{r fit_data3_lin, fig.width=5, fig.height=4, fig.cap="\\label{fig:mse_plot} MSE for diffrent $i$ in $M_i$"}
 
 mses = data.frame(Train_MSE=double(),
                   Test_MSE=double(),
@@ -337,52 +350,74 @@ for(i in seq(1,6)){
     mses[i,"Train_MSE"] = mean((train3$Moisture - predict(trained))^2)
     mses[i,"Test_MSE"] = mean((test3$Moisture - predict(trained, newdata=test3))^2)
 }
+
 plot(seq(1,6), mses$Test_MSE, type="n", ylim=c(30,35), ylab="MSE", xlab="i")
 lines(seq(1,6), mses$Train_MSE, col="blue")
 lines(seq(1,6), mses$Test_MSE, col="red")
 legend(4.5, 33, legend=c("Train data", "Test data"),
        col=c("blue", "red"), lty=1, cex=0.8)
+
 ```
 
-As seen if Figure \ref{fig:fig5} we see that model $i=1$ has lowest MSE for the test data, and should thus be selected.
+As seen if Figure \ref{fig:mse_plot} we see that model $i=1$ has lowest MSE for the test data, and should thus be selected.
 
 We can see that after $i=2$ the MSE for test data becomes higher while train data gets lower, this is probably due to the more advanced models overfitting the training data (As we can see in Figure \ref{fig:fig4}, the solution looks very linear)
 
-## 4
+## 4.4
 ```{r stepAIC, include=FALSE}
-
 #4.4
 data3[,1:102]
-trained = glm(Fat~., data=data3[,1:102])
+trained = glm(Fat~., data=data3[,2:102])
 stepped = stepAIC(trained)
-num_params = length(stepped$model)
+num_params = length(stepped$model - 1)
+
 ```
 
-The amount of variables selected is $64$
+The amount of variables selected is when using stepAIC is $63$.
 
-## 5
+## 4.5
 
-```{r ridge,  fig.width=5, fig.height=4, fig.cap="\\label{fig:fig7} ridge coefficients over lambda"}
-
+```{r ridge,  fig.width=7, fig.height=4, fig.cap="\\label{fig:ridge} ridge coefficients over lambda"}
 #4.5
-covariates = scale(stepped$model[,2:64])
-response = scale(stepped$model$Fat)
+covariates = scale(data3[2:101])
+response = scale(data3$Fat)
 ridge = glmnet(as.matrix(covariates), response, alpha=0, family="gaussian")
 plot(ridge, xvar="lambda")
+
 ```
 
-As seen in Figure \ref{fig:fig7}, we see that when lambda gets larger, the coeffiecents converge towards zero.
+As seen in Figure \ref{fig:ridge}, we see that when lambda gets larger, the coeffiecents converge towards zero.
 
-## 6
-```{r lasso,  fig.width=5, fig.height=4, fig.cap="\\label{fig:fig8} lasso coefficients over lambda"}
-
+## 4.6
+```{r lasso,  fig.width=7, fig.height=4, fig.cap="\\label{fig:lasso} lasso coefficients over lambda"}
 #4.6
 lasso = glmnet(as.matrix(covariates), response, alpha=1, family="gaussian")
 plot(lasso, xvar="lambda")
+
 ```
 
-As seen in Figure \ref{fig:fig8}, we see that in the lasso coeffient values varies a lot more, and all lambda values are negative.
+When we compare LASSO in Figure \ref{fig:lasso} with ridge regression, we see that when using ridge, no coefficents are removed (top axis of graph), these merely get very close to zero, whereas when using lasso, some coeffiecents gets set to 0 and are thus not used at all (which simplifies the model).
 
+## 4.7
+
+When doing cross-validation, the optimal value (minimum MSE), is given when $\lambda=0$ and it gives 100 parameters.
+
+If we look at Figure \ref{fig:cv}, we see that MSE increases with the increase of $\lambda$. As we saw earlier, the optimal $\lambda=0$, is also indicative of this trend (as the minimium MSE should be the lowest value possible, in this case 0).
+
+
+```{r cv_lasso, fig.cap="\\label{fig:cv} Cross-validation of LASSO", fig.pos="H!"}
+#4.7
+cv1 = cv.glmnet(as.matrix(covariates), response, alpha=1,
+                family="gaussian", lambda=c(0, 10^seq(-6, 1, 0.05)))
+plot(cv1)
+
+```
+
+## 4.8
+
+When using CV on LASSO, we use all coefficents, whereas in stepAIC we only use 63 coeffiecents.
+
+\pagebreak
 # Code appendix
 
 ```{r ref.label=knitr::all_labels(), echo = T, eval = F}
